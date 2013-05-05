@@ -1,6 +1,7 @@
 #
 INSTALL := cp
 PACKAGE := libmei
+HEADERS := libmei.h
 #
 MEI := mei
 LIBS := lib$(MEI).so
@@ -15,6 +16,9 @@ ifeq ($(ARCH),i386)
 CFLAGS += -m32
 LDFLAGS += -m32
 endif
+
+LIBDIR ?= /usr/local/lib
+INCDIR ?= /usr/include/$(MEI)
 
 lib%.so: %.o
 	$(CC) $(LDFLAGS) --shared $^ -o $@
@@ -31,5 +35,8 @@ tags: $(wildcard *.[ch])
 
 install_lib: $(LIBS)
 	$(INSTALL) $^ $(LIBDIR)/
+
+install_headers: $(HEADERS)
+	$(INSTALL) $^ $(INCDIR)/
 
 .PHONY: clean tags
