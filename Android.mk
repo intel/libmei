@@ -9,6 +9,7 @@ LOCAL_MODULE    := libmei
 
 LOCAL_COPY_HEADERS_TO := libmei
 LOCAL_COPY_HEADERS := libmei.h
+LOCAl_C_INCLUDES: = $(LOCAL_PATH)/include
 
 include $(BUILD_SHARED_LIBRARY)
 
