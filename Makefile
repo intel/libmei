@@ -1,5 +1,5 @@
 #
-INSTALL := cp
+INSTALL := install
 PACKAGE := libmei
 HEADERS := libmei.h
 #
@@ -34,9 +34,9 @@ tags: $(wildcard *.[ch])
 	ctags $^
 
 install_lib: $(LIBS)
-	$(INSTALL) $^ $(LIBDIR)/
+	$(INSTALL) -D $^ $(LIBDIR)/$^
 
 install_headers: $(HEADERS)
-	$(INSTALL) $^ $(INCDIR)/
+	$(INSTALL) -m 0644 -D $^ $(INCDIR)/$^
 
 .PHONY: clean tags
