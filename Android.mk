@@ -10,6 +10,7 @@ LOCAL_MODULE    := libmei
 LOCAL_COPY_HEADERS_TO := libmei
 LOCAL_COPY_HEADERS := libmei.h
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/include
+LOCAL_SHARED_LIBRARIES := libcutils
 
 include $(BUILD_SHARED_LIBRARY)
 

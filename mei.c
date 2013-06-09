@@ -82,7 +82,13 @@
 /*****************************************************************************
  * Intel Management Enginin Interface
  *****************************************************************************/
+#ifdef ANDROID
+#define LOG_TAG "libmei"
+#include <cutils/log.h>
+#define mei_msg(_me, fmt, ARGS...) ALOGV_IF(_me->verbose, fmt, ##ARGS)
+#define mei_err(_me, fmt, ARGS...) ALOGE_IF(_me->verbose, fmt, ##ARGS)
 
+#else
 #define mei_msg(_me, fmt, ARGS...) do {         \
 	if (_me->verbose)                       \
 		fprintf(stderr, "me: " fmt, ##ARGS);	\
@@ -91,11 +97,10 @@
 #define mei_err(_me, fmt, ARGS...) do {         \
 	fprintf(stderr, "me: error: " fmt, ##ARGS); \
 } while (0)
-
-
-
+#endif /* ANDROID */
 void mei_dump_hex_buffer(const unsigned char* buf, size_t len)
 {
+ 
 	int j = 0;
 	while (len-- > 0) {
 		fprintf(stdout, "%02X ", *buf++);
@@ -106,6 +111,7 @@ void mei_dump_hex_buffer(const unsigned char* buf, size_t len)
 	}
 	if (j)
 	fprintf(stdout, "\n");
+
 }
 
 void mei_deinit(struct mei *me)
