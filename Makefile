@@ -9,7 +9,7 @@ LIBS := lib$(MEI).so
 all: $(LIBS)
 
 CXXFLAGS=-Wall
-CFLAGS += -Wall -ggdb -I. -fPIC -O2
+CFLAGS += -Wall -ggdb -I. -fPIC -O2 -Iinclude
 LDFLAGS += -Wl,-rpath=.
 
 ifeq ($(ARCH),i386)
