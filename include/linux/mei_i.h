@@ -78,11 +78,11 @@ struct mei_client_dma_data {
 		unsigned long userptr;
 	};
 	__u32         length;
-	unsigned long handle;
+	__u32         handle;
 };
 
 struct mei_client_dma_handle {
-	unsigned long handle;
+	__u32         handle;
 };
 
 #endif /* _LINUX_MEI_I_H  */

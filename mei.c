@@ -152,7 +152,7 @@ int mei_set_dma_buf(struct mei *me, const char *buf, size_t length)
 		return result;
 	}
 
-	mei_msg(me, "IOCTL_MEI_CONNECT_CLIENT receive handle=%ld\n", data.handle);
+	mei_msg(me, "IOCTL_MEI_CONNECT_CLIENT receive handle=%X\n", data.handle);
 
 	return data.handle;
 }
