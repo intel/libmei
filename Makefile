@@ -8,8 +8,9 @@ LIBS := lib$(MEI).so
 
 all: $(LIBS)
 
+INCLUDES := -I. -I./include
 CXXFLAGS=-Wall
-CFLAGS += -Wall -ggdb -I. -fPIC -O2
+CFLAGS += -Wall -ggdb $(INCLUDES) -fPIC -O2
 LDFLAGS += -Wl,-rpath=.
 
 ifeq ($(ARCH),i386)
