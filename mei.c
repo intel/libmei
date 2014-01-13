@@ -164,9 +164,17 @@ int mei_connect(struct mei *me)
 	return 0;
 }
 
+const char* mei_get_devname()
+{
+	const char* devname = getenv("MEI_DEV");
+	return (NULL == devname) ? "/dev/mei" : devname;
+}
+
 bool mei_init(struct mei *me, const uuid_le *guid,
 		unsigned char req_protocol_version, bool verbose)
 {
+	const char* devname = mei_get_devname();
+
 	if (!me)
 		return false;
 
@@ -177,12 +185,13 @@ bool mei_init(struct mei *me, const uuid_le *guid,
 	me->verbose = verbose;
 	me->profile = false;
 
-	me->fd = open("/dev/mei", O_RDWR);
+	me->fd = open(devname, O_RDWR);
 	if (me->fd == -1) {
-		mei_err(me, "Cannot establish a handle to the Intel MEI driver\n");
+		mei_err(me, "Cannot establish a handle to the Intel MEI driver %s\n",
+			devname);
 		goto err;
 	}
-	mei_msg(me, "Opened /dev/mei: fd = %d\n", me->fd);
+	mei_msg(me, "Opened %s: fd = %d\n", devname, me->fd);
 
 	memcpy(&me->guid, guid, sizeof(*guid));
 	me->prot_ver = req_protocol_version;
