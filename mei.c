@@ -143,8 +143,8 @@ int mei_connect(struct mei *me)
 
 	result = ioctl(me->fd, IOCTL_MEI_CONNECT_CLIENT, &data);
 	if (result) {
-		mei_err(me, "IOCTL_MEI_CONNECT_CLIENT receive message. err=%d\n", result);
-		return result;
+		mei_err(me, "IOCTL_MEI_CONNECT_CLIENT receive message. res=%d errno=%d\n", result, errno);
+		return errno;
 	}
 	cl = &data.out_client_properties;
 	mei_msg(me, "max_message_length %d\n", cl->max_msg_length);
