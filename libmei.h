@@ -64,6 +64,7 @@
  *
  *****************************************************************************/
 #ifndef __LIBMEI_H__
+#define __LIBMEI_H__
 
 #include <linux/uuid.h>
 #include <linux/mei.h>
