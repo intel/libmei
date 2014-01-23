@@ -74,6 +74,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <linux/mei.h>
+#include <linux/mei_i.h>
 
 #include "libmei.h"
 
@@ -125,6 +126,35 @@ void mei_deinit(struct mei *me)
 	me->buf_size = 0;
 	me->prot_ver = 0;
 	me->state = MEI_CL_STATE_ZERO;
+}
+
+int mei_set_dma_buf(struct mei *me, const char *buf, size_t length)
+{
+	struct mei_client_dma_data data;
+	int result;
+
+	if (!me)
+		return -EINVAL;
+
+	if (!buf || length == 0)
+		return -EINVAL;
+
+	if (me->state != MEI_CL_STATE_CONNECTED)
+		return -EINVAL;
+
+	data.userptr = (unsigned long)buf;
+	data.length = length;
+	data.handle = 0;
+
+	result = ioctl(me->fd, IOCTL_MEI_SETUP_DMA_BUF, &data);
+	if (result) {
+		mei_err(me, "IOCTL_MEI_CONNECT_CLIENT receive message. err=%d\n", result);
+		return result;
+	}
+
+	mei_msg(me, "IOCTL_MEI_CONNECT_CLIENT receive handle=%X\n", data.handle);
+
+	return data.handle;
 }
 
 

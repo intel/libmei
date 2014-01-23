@@ -108,6 +108,8 @@ ssize_t mei_recv_msg(struct mei *me, unsigned char *buffer,
 ssize_t mei_send_msg(struct mei *me, const unsigned char *buffer,
 			ssize_t len, unsigned long timeout);
 
+int mei_set_dma_buf(struct mei *me, const char *buf, size_t length);
+
 #ifdef __cplusplus
 }
 #endif /*  __cplusplus */
