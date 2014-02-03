@@ -101,7 +101,6 @@
 #endif /* ANDROID */
 void mei_dump_hex_buffer(const unsigned char* buf, size_t len)
 {
- 
 	int j = 0;
 	while (len-- > 0) {
 		fprintf(stdout, "%02X ", *buf++);
@@ -115,6 +114,12 @@ void mei_dump_hex_buffer(const unsigned char* buf, size_t len)
 
 }
 
+const char* mei_get_devname()
+{
+	const char* devname = getenv("MEI_DEV");
+	return (NULL == devname) ? "/dev/mei" : devname;
+}
+
 void mei_deinit(struct mei *me)
 {
 	if (!me)
@@ -126,87 +131,76 @@ void mei_deinit(struct mei *me)
 	me->buf_size = 0;
 	me->prot_ver = 0;
 	me->state = MEI_CL_STATE_ZERO;
+	me->last_err = 0;
 }
 
-int mei_set_dma_buf(struct mei *me, const char *buf, size_t length)
+static inline int __mei_errno_to_state(struct mei *me)
 {
-	struct mei_client_dma_data data;
-	int result;
-
-	if (!me)
-		return -EINVAL;
-
-	if (!buf || length == 0)
-		return -EINVAL;
-
-	if (me->state != MEI_CL_STATE_CONNECTED)
-		return -EINVAL;
-
-	data.userptr = (unsigned long)buf;
-	data.length = length;
-	data.handle = 0;
-
-	result = ioctl(me->fd, IOCTL_MEI_SETUP_DMA_BUF, &data);
-	if (result) {
-		mei_err(me, "IOCTL_MEI_CONNECT_CLIENT receive message. err=%d\n", result);
-		return result;
+	switch(me->last_err) {
+	case 0:         return me->state;
+	case ENOTTY:    return MEI_CL_STATE_NOT_PRESENT;
+	case EBUSY:     return MEI_CL_STATE_DISCONNECTED;
+	case ENODEV:    return MEI_CL_STATE_DISCONNECTED;
+	default:        return MEI_CL_STATE_ERROR;
 	}
-
-	mei_msg(me, "IOCTL_MEI_CONNECT_CLIENT receive handle=%X\n", data.handle);
-
-	return data.handle;
 }
 
-
-int mei_connect(struct mei *me)
+static inline int __mei_open(struct mei *me, const char *devname)
 {
-	struct mei_client *cl;
-	struct mei_connect_client_data data;
-	int result;
-
-	if (me->state != MEI_CL_STATE_INTIALIZED)
-		return EINVAL;
-
-	memset(&data, 0, sizeof(data));
-
-	memcpy(&data.in_client_uuid, &me->guid, sizeof(me->guid));
-
-	result = ioctl(me->fd, IOCTL_MEI_CONNECT_CLIENT, &data);
-	if (result) {
-		mei_err(me, "IOCTL_MEI_CONNECT_CLIENT receive message. res=%d errno=%d\n", result, errno);
-		return errno;
-	}
-	cl = &data.out_client_properties;
-	mei_msg(me, "max_message_length %d\n", cl->max_msg_length);
-	mei_msg(me, "protocol_version %d\n", cl->protocol_version);
-
-	if ((me->prot_ver > 0) &&
-	     (cl->protocol_version != me->prot_ver)) {
-		mei_err(me, "Intel MEI protocol version not supported\n");
-		return EINVAL;
-	}
-
-	me->buf_size = cl->max_msg_length;
-	me->prot_ver = cl->protocol_version;
-
-	me->state =  MEI_CL_STATE_CONNECTED;
-
-	return 0;
+	me->fd = open(devname, O_RDWR);
+	me->last_err = errno;
+	return -me->last_err;
 }
 
-const char* mei_get_devname()
+static inline int __mei_connect(struct mei *me, struct mei_connect_client_data *d)
 {
-	const char* devname = getenv("MEI_DEV");
-	return (NULL == devname) ? "/dev/mei" : devname;
+	int rc = ioctl(me->fd, IOCTL_MEI_CONNECT_CLIENT, d);
+	me->last_err = errno;
+	return rc == -1 ? -me->last_err : 0;
 }
 
-bool mei_init(struct mei *me, const uuid_le *guid,
+static inline int __mei_dma_buff(struct mei *me, struct mei_client_dma_data *d)
+{
+	int rc = ioctl(me->fd, IOCTL_MEI_SETUP_DMA_BUF, d);
+	me->last_err = errno;
+	return rc == -1 ? -me->last_err : 0;
+}
+
+static inline ssize_t __mei_read(struct mei *me, unsigned char *buf, size_t len)
+{
+	ssize_t rc;
+	rc = read(me->fd, buf, len);
+	me->last_err = errno;
+	return rc <= 0 ? -me->last_err : rc;
+}
+
+static inline ssize_t __mei_write(struct mei *me, const unsigned char *buf, size_t len)
+{
+	ssize_t rc;
+	rc = write(me->fd, buf, len);
+	me->last_err = errno;
+	return rc <= 0 ? -me->last_err : rc;
+}
+
+static inline int __mei_select(struct mei *me,
+		fd_set *readfds, fd_set *writefds,
+		fd_set *exceptfds, struct timeval *timeout)
+
+{
+	int rc;
+	rc = select(me->fd + 1, readfds, writefds, exceptfds, timeout);
+	me->last_err = errno;
+	return rc;
+}
+
+int mei_init(struct mei *me, const uuid_le *guid,
 		unsigned char req_protocol_version, bool verbose)
 {
 	const char* devname = mei_get_devname();
+	int rc;
 
-	if (!me)
-		return false;
+	if (!me || !guid)
+		return -EINVAL;
 
 	/* if me is unitialized it will close wrong file descriptor */
 	me->fd = -1;
@@ -215,12 +209,13 @@ bool mei_init(struct mei *me, const uuid_le *guid,
 	me->verbose = verbose;
 	me->profile = false;
 
-	me->fd = open(devname, O_RDWR);
-	if (me->fd == -1) {
-		mei_err(me, "Cannot establish a handle to the Intel MEI driver %s\n",
-			devname);
-		goto err;
+	rc = __mei_open(me, devname);
+	if (rc < 0) {
+		mei_err(me, "Cannot establish a handle to the Intel MEI driver %s [%d]:%s\n",
+			devname, rc, strerror(-rc));
+		return rc;
 	}
+
 	mei_msg(me, "Opened %s: fd = %d\n", devname, me->fd);
 
 	memcpy(&me->guid, guid, sizeof(*guid));
@@ -228,21 +223,22 @@ bool mei_init(struct mei *me, const uuid_le *guid,
 
 	me->state = MEI_CL_STATE_INTIALIZED;
 
-	return true;
-err:
-	mei_deinit(me);
-	return false;
+	return 0;
 }
 
 struct mei *mei_alloc(const uuid_le *guid,
 		unsigned char req_protocol_version, bool verbose)
 {
-	struct mei *me = malloc(sizeof(struct mei));
- 
+	struct mei *me;
+
+	if (!guid)
+		return NULL;
+
+	me = malloc(sizeof(struct mei));
 	if (!me)
 		return NULL;
 
-	if (!mei_init(me, guid, req_protocol_version, verbose)) {
+	if (mei_init(me, guid, req_protocol_version, verbose)) {
 		free(me);
 		return NULL;
 	}
@@ -257,87 +253,157 @@ void mei_free(struct mei *me)
 	free(me);
 }
 
+int mei_connect(struct mei *me)
+{
+	struct mei_client *cl;
+	struct mei_connect_client_data data;
+	int rc;
+
+	if (!me)
+		return -EINVAL;
+
+	if (me->state != MEI_CL_STATE_INTIALIZED &&
+	    me->state != MEI_CL_STATE_DISCONNECTED) {
+		mei_err(me, "client state [%d]\n", me->state);
+		return -EINVAL;
+	}
+
+	memset(&data, 0, sizeof(data));
+	memcpy(&data.in_client_uuid, &me->guid, sizeof(me->guid));
+
+	rc = __mei_connect(me, &data);
+	if (rc < 0) {
+		me->state = __mei_errno_to_state(me);
+		mei_err(me, "Cannot connect to client [%d]:%s\n", rc, strerror(-rc));
+		return rc;
+	}
+
+	cl = &data.out_client_properties;
+	mei_msg(me, "max_message_length %d\n", cl->max_msg_length);
+	mei_msg(me, "protocol_version %d\n", cl->protocol_version);
+
+	/* FIXME: need to be exported otherwise */
+	if ((me->prot_ver > 0) &&
+	     (cl->protocol_version != me->prot_ver)) {
+		mei_err(me, "Intel MEI protocol version not supported\n");
+		return -EINVAL;
+	}
+
+	me->buf_size = cl->max_msg_length;
+	me->prot_ver = cl->protocol_version;
+
+	me->state =  MEI_CL_STATE_CONNECTED;
+
+	return 0;
+}
+
 ssize_t mei_recv_msg(struct mei *me, unsigned char *buffer,
-			ssize_t len, unsigned long timeout)
+			size_t len, unsigned long timeout)
 {
 	ssize_t rc;
 	timestamp_declare(s,e);
 
-	if (!me)
+	if (!me || !buffer)
 		return -EINVAL;
 
 	mei_msg(me, "call read length = %zd\n", len);
 
 	timestamp_get(me, s);
-	rc = read(me->fd, buffer, len);
+	rc = __mei_read(me, buffer, len);
 	timestamp_get(me, e);
 	if (rc < 0) {
-		mei_err(me, "read failed with status %zd %s\n",
-				rc, strerror(errno));
-		mei_deinit(me);
-	} else {
-		mei_msg(me, "read succeeded with result %zd\n", rc);
-		if (me->verbose)
-			mei_dump_hex_buffer(buffer, rc);
+		me->state = __mei_errno_to_state(me);
+		mei_err(me, "read failed with status [%zd]:%s\n", rc, strerror(-rc));
+		goto out;
 	}
+	mei_msg(me, "read succeeded with result %zd\n", rc);
+	if (me->verbose)
+		mei_dump_hex_buffer(buffer, rc);
+out:
 	timestamp_print(me, s, e, "mei read: ");
 	return rc;
 }
 
 ssize_t mei_send_msg(struct mei *me, const unsigned char *buffer,
-			ssize_t len, unsigned long timeout)
+			size_t len, unsigned long timeout)
 {
 	struct timeval tv;
-	ssize_t written;
-	ssize_t rc;
+	ssize_t rc, wr;
 	fd_set set;
 	timestamp_declare(s,e);
 
 	if (!me || !buffer)
 		return -EINVAL;
 
-	tv.tv_sec = timeout / 1000;
-	tv.tv_usec = (timeout % 1000) * 1000000;
-
 	mei_msg(me, "call write length = %zd\n", len);
 	if (me->verbose)
 		mei_dump_hex_buffer(buffer, len);
 
 	timestamp_get(me, s);
-	written = write(me->fd, buffer, len);
+	rc  = __mei_write(me, buffer, len);
 	timestamp_get(me, e);
-	if (written < 0) {
-		rc = -errno;
-		mei_err(me, "write failed with status %zd %s\n",
-			written, strerror(errno));
-		goto out;
+	if (rc < 0) {
+		me->state = __mei_errno_to_state(me);
+		mei_err(me, "write failed with status [%zd]:%s\n",
+			rc, strerror(-rc));
+		return rc;
 	}
 	timestamp_print(me, s, e, "mei write: ");
 
 	if (!timeout)
-		goto nowait;
+		return rc;
+	wr = rc;
+
+	tv.tv_sec = timeout / 1000;
+	tv.tv_usec = (timeout % 1000) * 1000000;
 
 	FD_ZERO(&set);
 	FD_SET(me->fd, &set);
-	rc = select(me->fd + 1 , &set, NULL, NULL, &tv);
+	rc = __mei_select(me, &set, NULL, NULL, &tv);
 	if (rc > 0 && FD_ISSET(me->fd, &set)) {
 		mei_msg(me, "write success\n");
+		rc = wr;
 	} else if (rc == 0) {
-		mei_err(me, "write failed on timeout with status\n");
-		goto out;
+		mei_err(me, "write failed on timeout\n");
+		return -ETIME;
 	} else { /* rc < 0 */
-		mei_err(me, "write failed on select with status %zd\n", rc);
-		goto out;
+		mei_err(me, "write failed on select with status [%d]:%s\n",
+			-me->last_err, strerror(me->last_err));
 	}
-
-nowait:
-	rc = written;
-out:
-	if (rc < 0)
-		mei_deinit(me);
 
 	return rc;
 }
+
+int mei_set_dma_buf(struct mei *me, const char *buf, size_t length)
+{
+	struct mei_client_dma_data data;
+	int rc;
+
+	if (!me)
+		return -EINVAL;
+
+	if (!buf || length == 0)
+		return -EINVAL;
+
+	if (me->state != MEI_CL_STATE_CONNECTED)
+		return -EINVAL;
+
+	data.userptr = (unsigned long)buf;
+	data.length = length;
+	data.handle = 0;
+
+	rc = __mei_dma_buff(me, &data);
+	if (rc < 0) {
+		me->state = __mei_errno_to_state(me);
+		mei_err(me, "Cannot set dma buffer to client [%d]:%s\n", rc, strerror(-rc));
+		return rc;
+	}
+
+	mei_msg(me, "dma handle %d\n", data.handle);
+
+	return data.handle;
+}
+
 
 #ifdef TEST
 int main(int argc, char **argv)

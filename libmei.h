@@ -77,8 +77,11 @@ extern "C" {
 
 enum {
 	MEI_CL_STATE_ZERO = 0,
-	MEI_CL_STATE_INTIALIZED = 1,
-	MEI_CL_STATE_CONNECTED,
+	MEI_CL_STATE_INTIALIZED = 1,    /** client is initialized */
+	MEI_CL_STATE_CONNECTED,         /** client is connected */
+	MEI_CL_STATE_DISCONNECTED,      /** client is disconnected */
+	MEI_CL_STATE_NOT_PRESENT,       /** client with GUID is not present in the system */
+	MEI_CL_STATE_ERROR,             /** client is in error state */
 };
 
 struct mei {
@@ -87,6 +90,7 @@ struct mei {
 	unsigned char prot_ver;
 	int fd;
 	int state;
+	int last_err;
 	bool verbose;
 	bool profile;
 };
@@ -96,17 +100,17 @@ struct mei *mei_alloc(const uuid_le *guid,
 
 void mei_free(struct mei *me);
 
-bool mei_init(struct mei *me, const uuid_le *guid,
+int mei_init(struct mei *me, const uuid_le *guid,
 		unsigned char req_protocol_version, bool verbose);
 void mei_deinit(struct mei *me);
 
 int mei_connect(struct mei *me);
 
 ssize_t mei_recv_msg(struct mei *me, unsigned char *buffer,
-			ssize_t len, unsigned long timeout);
+			size_t len, unsigned long timeout);
 
 ssize_t mei_send_msg(struct mei *me, const unsigned char *buffer,
-			ssize_t len, unsigned long timeout);
+			size_t len, unsigned long timeout);
 
 int mei_set_dma_buf(struct mei *me, const char *buf, size_t length);
 
