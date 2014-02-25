@@ -147,13 +147,15 @@ static inline int __mei_errno_to_state(struct mei *me)
 
 static inline int __mei_open(struct mei *me, const char *devname)
 {
+	errno = 0;
 	me->fd = open(devname, O_RDWR);
 	me->last_err = errno;
-	return -me->last_err;
+	return me->fd == -1 ? -me->last_err : me->fd;
 }
 
 static inline int __mei_connect(struct mei *me, struct mei_connect_client_data *d)
 {
+	errno = 0;
 	int rc = ioctl(me->fd, IOCTL_MEI_CONNECT_CLIENT, d);
 	me->last_err = errno;
 	return rc == -1 ? -me->last_err : 0;
@@ -161,6 +163,7 @@ static inline int __mei_connect(struct mei *me, struct mei_connect_client_data *
 
 static inline int __mei_dma_buff(struct mei *me, struct mei_client_dma_data *d)
 {
+	errno = 0;
 	int rc = ioctl(me->fd, IOCTL_MEI_SETUP_DMA_BUF, d);
 	me->last_err = errno;
 	return rc == -1 ? -me->last_err : 0;
@@ -169,6 +172,7 @@ static inline int __mei_dma_buff(struct mei *me, struct mei_client_dma_data *d)
 static inline ssize_t __mei_read(struct mei *me, unsigned char *buf, size_t len)
 {
 	ssize_t rc;
+	errno = 0;
 	rc = read(me->fd, buf, len);
 	me->last_err = errno;
 	return rc <= 0 ? -me->last_err : rc;
@@ -177,6 +181,7 @@ static inline ssize_t __mei_read(struct mei *me, unsigned char *buf, size_t len)
 static inline ssize_t __mei_write(struct mei *me, const unsigned char *buf, size_t len)
 {
 	ssize_t rc;
+	errno = 0;
 	rc = write(me->fd, buf, len);
 	me->last_err = errno;
 	return rc <= 0 ? -me->last_err : rc;
@@ -188,6 +193,7 @@ static inline int __mei_select(struct mei *me,
 
 {
 	int rc;
+	errno = 0;
 	rc = select(me->fd + 1, readfds, writefds, exceptfds, timeout);
 	me->last_err = errno;
 	return rc;
