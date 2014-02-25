@@ -5,10 +5,10 @@
 
 static inline void dump_buffer(const unsigned char *buf, size_t buf_len) 
 {
-	int i;
+	size_t i;
 	uint32_t *b32 = (uint32_t *)buf;
 	for (i = 0 ; i < buf_len/4 ; i++)
-		printf("%08X:0x%08X\n", i, b32[i]);
+		printf("%08zX:0x%08X\n", i, b32[i]);
 }
 
 #define timestamp_declare(_s,_e) 		\
