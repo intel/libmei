@@ -95,12 +95,14 @@ struct mei {
 	bool profile;
 };
 
-struct mei *mei_alloc(const uuid_le *guid,
+#define MEI_DEFAULT_DEVICE "/dev/mei"
+
+struct mei *mei_alloc(const char *device, const uuid_le *guid,
 		unsigned char req_protocol_version, bool verbose);
 
 void mei_free(struct mei *me);
 
-int mei_init(struct mei *me, const uuid_le *guid,
+int mei_init(struct mei *me, const char *device, const uuid_le *guid,
 		unsigned char req_protocol_version, bool verbose);
 void mei_deinit(struct mei *me);
 
