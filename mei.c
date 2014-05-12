@@ -85,12 +85,6 @@ void mei_dump_hex_buffer(const unsigned char* buf, size_t len)
 
 }
 
-const char* mei_get_devname()
-{
-	const char* devname = getenv("MEI_DEV");
-	return (NULL == devname) ? "/dev/mei" : devname;
-}
-
 void mei_deinit(struct mei *me)
 {
 	if (!me)
@@ -170,13 +164,12 @@ static inline int __mei_select(struct mei *me,
 	return rc;
 }
 
-int mei_init(struct mei *me, const uuid_le *guid,
+int mei_init(struct mei *me, const char *device, const uuid_le *guid,
 		unsigned char req_protocol_version, bool verbose)
 {
-	const char* devname = mei_get_devname();
 	int rc;
 
-	if (!me || !guid)
+	if (!me || !device || !guid)
 		return -EINVAL;
 
 	/* if me is unitialized it will close wrong file descriptor */
@@ -186,14 +179,14 @@ int mei_init(struct mei *me, const uuid_le *guid,
 	me->verbose = verbose;
 	me->profile = false;
 
-	rc = __mei_open(me, devname);
+	rc = __mei_open(me, device);
 	if (rc < 0) {
-		mei_err(me, "Cannot establish a handle to the Intel MEI driver %s [%d]:%s\n",
-			devname, rc, strerror(-rc));
+		mei_err(me, "Cannot establish a handle to the Intel MEI driver %.20s [%d]:%s\n",
+			device, rc, strerror(-rc));
 		return rc;
 	}
 
-	mei_msg(me, "Opened %s: fd = %d\n", devname, me->fd);
+	mei_msg(me, "Opened %.20s: fd = %d\n", device, me->fd);
 
 	memcpy(&me->guid, guid, sizeof(*guid));
 	me->prot_ver = req_protocol_version;
@@ -203,19 +196,19 @@ int mei_init(struct mei *me, const uuid_le *guid,
 	return 0;
 }
 
-struct mei *mei_alloc(const uuid_le *guid,
+struct mei *mei_alloc(const char *device, const uuid_le *guid,
 		unsigned char req_protocol_version, bool verbose)
 {
 	struct mei *me;
 
-	if (!guid)
+	if (!device || !guid)
 		return NULL;
 
 	me = malloc(sizeof(struct mei));
 	if (!me)
 		return NULL;
 
-	if (mei_init(me, guid, req_protocol_version, verbose)) {
+	if (mei_init(me, device, guid, req_protocol_version, verbose)) {
 		free(me);
 		return NULL;
 	}
