@@ -81,7 +81,7 @@
 #include "utils.h"
 
 /*****************************************************************************
- * Intel Management Enginin Interface
+ * Intel Management Engine Interface
  *****************************************************************************/
 #ifdef ANDROID
 #define LOG_TAG "libmei"
@@ -201,7 +201,7 @@ int mei_init(struct mei *me, const char *device, const uuid_le *guid,
 	if (!me || !device || !guid)
 		return -EINVAL;
 
-	/* if me is unitialized it will close wrong file descriptor */
+	/* if me is uninitialized it will close wrong file descriptor */
 	me->fd = -1;
 	mei_deinit(me);
 
