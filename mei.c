@@ -405,10 +405,3 @@ int mei_set_dma_buf(struct mei *me, const char *buf, size_t length)
 	return data.handle;
 }
 
-
-#ifdef TEST
-int main(int argc, char **argv)
-{
-
-}
-#endif
