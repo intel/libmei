@@ -88,10 +88,12 @@
 #include <cutils/log.h>
 #define mei_msg(_me, fmt, ARGS...) ALOGV_IF(_me->verbose, fmt, ##ARGS)
 #define mei_err(_me, fmt, ARGS...) ALOGE_IF(_me->verbose, fmt, ##ARGS)
-static inline void mei_dump_hex_buffer(const unsigned char* buf, size_t len)
+static inline void __dump_buffer(const char *buf)
 {
+	ALOGV("%s\n" buf);
 }
-#else
+
+#else /* ! ANDROID */
 #define mei_msg(_me, fmt, ARGS...) do {         \
 	if (_me->verbose)                       \
 		fprintf(stderr, "me: " fmt, ##ARGS);	\
@@ -100,21 +102,28 @@ static inline void mei_dump_hex_buffer(const unsigned char* buf, size_t len)
 #define mei_err(_me, fmt, ARGS...) do {         \
 	fprintf(stderr, "me: error: " fmt, ##ARGS); \
 } while (0)
-static void mei_dump_hex_buffer(const unsigned char* buf, size_t len)
+static inline void __dump_buffer(const char *buf)
 {
+	fprintf(stderr, "%s\n", buf);;
+}
+#endif /* ANDROID */
+
+static void mei_dump_hex_buffer(const unsigned char *buf, size_t len)
+{
+	const size_t pbufsz = 16 * 3;
+	char pbuf[pbufsz];
 	int j = 0;
 	while (len-- > 0) {
-		fprintf(stderr, "%02X ", *buf++);
-		if (++j == 16) {
-			fprintf(stderr, "\n");
+		snprintf(&pbuf[j], pbufsz - j, "%02X ", *buf++);
+		j += 3;
+		if (j == 16 * 3) {
+			__dump_buffer(pbuf);
 			j = 0;
 		}
 	}
 	if (j)
-	fprintf(stderr, "\n");
-
+		__dump_buffer(pbuf);
 }
-#endif /* ANDROID */
 
 void mei_deinit(struct mei *me)
 {
