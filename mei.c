@@ -52,14 +52,16 @@
 #include "utils.h"
 
 /*****************************************************************************
- * Intel Management Enginin Interface
+ * Intel Management Engine Interface
  *****************************************************************************/
 #ifdef ANDROID
 #define LOG_TAG "libmei"
 #include <cutils/log.h>
 #define mei_msg(_me, fmt, ARGS...) ALOGV_IF(_me->verbose, fmt, ##ARGS)
 #define mei_err(_me, fmt, ARGS...) ALOGE_IF(_me->verbose, fmt, ##ARGS)
-
+static inline void mei_dump_hex_buffer(const unsigned char* buf, size_t len)
+{
+}
 #else
 #define mei_msg(_me, fmt, ARGS...) do {         \
 	if (_me->verbose)                       \
@@ -69,21 +71,21 @@
 #define mei_err(_me, fmt, ARGS...) do {         \
 	fprintf(stderr, "me: error: " fmt, ##ARGS); \
 } while (0)
-#endif /* ANDROID */
-void mei_dump_hex_buffer(const unsigned char* buf, size_t len)
+static void mei_dump_hex_buffer(const unsigned char* buf, size_t len)
 {
 	int j = 0;
 	while (len-- > 0) {
-		fprintf(stdout, "%02X ", *buf++);
+		fprintf(stderr, "%02X ", *buf++);
 		if (++j == 16) {
-			fprintf(stdout, "\n");
+			fprintf(stderr, "\n");
 			j = 0;
 		}
 	}
 	if (j)
-	fprintf(stdout, "\n");
+	fprintf(stderr, "\n");
 
 }
+#endif /* ANDROID */
 
 void mei_deinit(struct mei *me)
 {
@@ -172,7 +174,7 @@ int mei_init(struct mei *me, const char *device, const uuid_le *guid,
 	if (!me || !device || !guid)
 		return -EINVAL;
 
-	/* if me is unitialized it will close wrong file descriptor */
+	/* if me is uninitialized it will close wrong file descriptor */
 	me->fd = -1;
 	mei_deinit(me);
 
