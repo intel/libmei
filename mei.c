@@ -49,8 +49,6 @@
 
 #include "libmei.h"
 
-#include "utils.h"
-
 /*****************************************************************************
  * Intel Management Engine Interface
  *****************************************************************************/
@@ -188,7 +186,6 @@ int mei_init(struct mei *me, const char *device, const uuid_le *guid,
 	mei_deinit(me);
 
 	me->verbose = verbose;
-	me->profile = false;
 
 	rc = __mei_open(me, device);
 	if (rc < 0) {
@@ -282,16 +279,13 @@ ssize_t mei_recv_msg(struct mei *me, unsigned char *buffer,
 			size_t len, unsigned long timeout)
 {
 	ssize_t rc;
-	timestamp_declare(s,e);
 
 	if (!me || !buffer)
 		return -EINVAL;
 
 	mei_msg(me, "call read length = %zd\n", len);
 
-	timestamp_get(me, s);
 	rc = __mei_read(me, buffer, len);
-	timestamp_get(me, e);
 	if (rc < 0) {
 		me->state = __mei_errno_to_state(me);
 		mei_err(me, "read failed with status [%zd]:%s\n", rc, strerror(-rc));
@@ -301,7 +295,6 @@ ssize_t mei_recv_msg(struct mei *me, unsigned char *buffer,
 	if (me->verbose)
 		mei_dump_hex_buffer(buffer, rc);
 out:
-	timestamp_print(me, s, e, "mei read: ");
 	return rc;
 }
 
@@ -311,7 +304,6 @@ ssize_t mei_send_msg(struct mei *me, const unsigned char *buffer,
 	struct timeval tv;
 	ssize_t rc, wr;
 	fd_set set;
-	timestamp_declare(s,e);
 
 	if (!me || !buffer)
 		return -EINVAL;
@@ -320,16 +312,13 @@ ssize_t mei_send_msg(struct mei *me, const unsigned char *buffer,
 	if (me->verbose)
 		mei_dump_hex_buffer(buffer, len);
 
-	timestamp_get(me, s);
 	rc  = __mei_write(me, buffer, len);
-	timestamp_get(me, e);
 	if (rc < 0) {
 		me->state = __mei_errno_to_state(me);
 		mei_err(me, "write failed with status [%zd]:%s\n",
 			rc, strerror(-rc));
 		return rc;
 	}
-	timestamp_print(me, s, e, "mei write: ");
 
 	if (!timeout)
 		return rc;

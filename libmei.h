@@ -65,7 +65,6 @@ struct mei {
 	int state;
 	int last_err;
 	bool verbose;
-	bool profile;
 };
 
 #define MEI_DEFAULT_DEVICE "/dev/mei"
