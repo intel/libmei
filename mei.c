@@ -45,7 +45,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <linux/mei.h>
+
+#ifndef IOCTL_MEI_SETUP_DMA_BUF
 #include <linux/mei_i.h>
+#endif
 
 #include "libmei.h"
 
