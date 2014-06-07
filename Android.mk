@@ -3,7 +3,7 @@ LOCAL_PATH := $(call my-dir)
 ## MEI Library
 include $(CLEAR_VARS)
 
-LOCAL_MODULE_TAGS:= debug eng tests optional
+LOCAL_MODULE_TAGS:= optional
 LOCAL_SRC_FILES := mei.c
 LOCAL_MODULE    := libmei
 LOCAL_MODULE_OWNER := intel
