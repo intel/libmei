@@ -6,6 +6,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE_TAGS:= debug eng tests optional
 LOCAL_SRC_FILES := mei.c
 LOCAL_MODULE    := libmei
+LOCAL_MODULE_OWNER := intel
 
 LOCAL_COPY_HEADERS_TO := libmei
 LOCAL_COPY_HEADERS := libmei.h
