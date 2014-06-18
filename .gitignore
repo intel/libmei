@@ -1,1 +1,11 @@
-libmei.so
+*.so
+*.o
+*.a
+tags
+TAGS
+cscope.*
+ncscope.*
+GPATH
+GRTAGS
+GSYMS
+GTAGS
