@@ -135,6 +135,23 @@ int mei_get_fd(struct mei *me)
 	return me->fd;
 }
 
+static int __mei_set_nonblock(struct mei *me)
+{
+	int flags;
+	int rc;
+	flags = fcntl(me->fd, F_GETFL, 0);
+	if (flags == -1) {
+		me->last_err = errno;
+		return -me->last_err;
+	}
+	rc = fcntl(me->fd, F_SETFL, flags | O_NONBLOCK);
+	if (rc < 0) {
+		me->last_err = errno;
+		return -me->last_err;
+	}
+	return 0;
+}
+
 static inline int __mei_open(struct mei *me, const char *devname)
 {
 	errno = 0;
@@ -246,6 +263,13 @@ void mei_free(struct mei *me)
 		return;
 	mei_deinit(me);
 	free(me);
+}
+
+int mei_set_nonblock(struct mei *me)
+{
+	if (!me)
+		return -EINVAL;
+	return __mei_set_nonblock(me);
 }
 
 int mei_connect(struct mei *me)

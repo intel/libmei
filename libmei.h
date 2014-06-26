@@ -145,6 +145,13 @@ void mei_deinit(struct mei *me);
 int mei_connect(struct mei *me);
 
 
+/*! Setup mei connection to non block
+ *
+ *  \param me The mei handle
+ *  \return 0 if successful, otherwise error code
+ */
+int mei_set_nonblock(struct mei *me);
+
 /*! return file descriptor to opened handle
  *
  *  \param me The mei handle
