@@ -81,11 +81,9 @@ void mei_deinit(struct mei *me);
 
 int mei_connect(struct mei *me);
 
-ssize_t mei_recv_msg(struct mei *me, unsigned char *buffer,
-			size_t len, unsigned long timeout);
+ssize_t mei_recv_msg(struct mei *me, unsigned char *buffer, size_t len);
 
-ssize_t mei_send_msg(struct mei *me, const unsigned char *buffer,
-			size_t len, unsigned long timeout);
+ssize_t mei_send_msg(struct mei *me, const unsigned char *buffer, size_t len);
 
 int mei_set_dma_buf(struct mei *me, const char *buf, size_t length);
 

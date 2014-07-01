@@ -164,18 +164,6 @@ static inline ssize_t __mei_write(struct mei *me, const unsigned char *buf, size
 	return rc <= 0 ? -me->last_err : rc;
 }
 
-static inline int __mei_select(struct mei *me,
-		fd_set *readfds, fd_set *writefds,
-		fd_set *exceptfds, struct timeval *timeout)
-
-{
-	int rc;
-	errno = 0;
-	rc = select(me->fd + 1, readfds, writefds, exceptfds, timeout);
-	me->last_err = errno;
-	return rc;
-}
-
 int mei_init(struct mei *me, const char *device, const uuid_le *guid,
 		unsigned char req_protocol_version, bool verbose)
 {
@@ -278,8 +266,7 @@ int mei_connect(struct mei *me)
 	return 0;
 }
 
-ssize_t mei_recv_msg(struct mei *me, unsigned char *buffer,
-			size_t len, unsigned long timeout)
+ssize_t mei_recv_msg(struct mei *me, unsigned char *buffer, size_t len)
 {
 	ssize_t rc;
 
@@ -301,12 +288,9 @@ out:
 	return rc;
 }
 
-ssize_t mei_send_msg(struct mei *me, const unsigned char *buffer,
-			size_t len, unsigned long timeout)
+ssize_t mei_send_msg(struct mei *me, const unsigned char *buffer, size_t len)
 {
-	struct timeval tv;
-	ssize_t rc, wr;
-	fd_set set;
+	ssize_t rc;
 
 	if (!me || !buffer)
 		return -EINVAL;
@@ -321,27 +305,6 @@ ssize_t mei_send_msg(struct mei *me, const unsigned char *buffer,
 		mei_err(me, "write failed with status [%zd]:%s\n",
 			rc, strerror(-rc));
 		return rc;
-	}
-
-	if (!timeout)
-		return rc;
-	wr = rc;
-
-	tv.tv_sec = timeout / 1000;
-	tv.tv_usec = (timeout % 1000) * 1000000;
-
-	FD_ZERO(&set);
-	FD_SET(me->fd, &set);
-	rc = __mei_select(me, &set, NULL, NULL, &tv);
-	if (rc > 0 && FD_ISSET(me->fd, &set)) {
-		mei_msg(me, "write success\n");
-		rc = wr;
-	} else if (rc == 0) {
-		mei_err(me, "write failed on timeout\n");
-		return -ETIME;
-	} else { /* rc < 0 */
-		mei_err(me, "write failed on select with status [%d]:%s\n",
-			-me->last_err, strerror(me->last_err));
 	}
 
 	return rc;
