@@ -36,6 +36,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *****************************************************************************/
+/*! \file libmei.h
+    \brief mei library API
+ */
 #ifndef __LIBMEI_H__
 #define __LIBMEI_H__
 
@@ -49,45 +52,116 @@
 extern "C" {
 #endif /*  __cplusplus */
 
-enum {
-	MEI_CL_STATE_ZERO = 0,
-	MEI_CL_STATE_INTIALIZED = 1,    /** client is initialized */
-	MEI_CL_STATE_CONNECTED,         /** client is connected */
-	MEI_CL_STATE_DISCONNECTED,      /** client is disconnected */
-	MEI_CL_STATE_NOT_PRESENT,       /** client with GUID is not present in the system */
+/*! ME client connection state
+ */
+enum mei_cl_state {
+	MEI_CL_STATE_ZERO = 0,          /**< reserved */
+	MEI_CL_STATE_INTIALIZED = 1,    /**< client is initialized */
+	MEI_CL_STATE_CONNECTED,         /**< client is connected */
+	MEI_CL_STATE_DISCONNECTED,      /**< client is disconnected */
+	MEI_CL_STATE_NOT_PRESENT,       /**< client with GUID is not present in the system */
 	MEI_CL_STATE_VERSION_MISMATCH,  /** client version not supported */
-	MEI_CL_STATE_ERROR,             /** client is in error state */
+	MEI_CL_STATE_ERROR,             /**< client is in error state */
 };
 
+/*! Structure to store connection data
+ */
 struct mei {
-	uuid_le guid;
-	unsigned int buf_size;
-	unsigned char prot_ver;
-	int fd;
-	int state;
-	int last_err;
-	bool verbose;
+	uuid_le guid;           /**< client UUID */
+	unsigned int buf_size;  /**< maximum buffer size supported by client*/
+	unsigned char prot_ver; /**< protocol version */
+	int fd;                 /**< connection file descriptor */
+	int state;              /**< client connection state */
+	int last_err;           /**< saved errno */
+	bool verbose;           /**< verbose execution */
 };
 
+/*! Default path to mei device
+ */
 #define MEI_DEFAULT_DEVICE "/dev/mei"
 
+/*! Allocate and initialize me handle structure
+ *
+ *  \param device device path, set MEI_DEFAULT_DEVICE to use default
+ *  \param guid UUID/GUID of associated mei client
+ *  \param req_protocol_version minimal required protocol version, 0 for any
+ *  \param verbose print verbose output to console
+ *  \return me handle to the mei device. All subsequent calls to the lib's functions
+ *         must be with this handle. NULL on failure.
+ */
 struct mei *mei_alloc(const char *device, const uuid_le *guid,
 		unsigned char req_protocol_version, bool verbose);
 
+/*! Free me handle structure
+ *
+ *  \param me The mei handle
+ */
 void mei_free(struct mei *me);
 
+/*! Initializes a mei connection
+ *
+ *  \param me A handle to the mei device. All subsequent calls to the lib's functions
+ *         must be with this handle
+ *  \param device device path, set MEI_DEFAULT_DEVICE to use default
+ *  \param guid UUID/GUID of associated mei client
+ *  \param req_protocol_version minimal required protocol version, 0 for any
+ *  \param verbose print verbose output to a console
+ *  \return 0 if successful, otherwise error code
+ */
 int mei_init(struct mei *me, const char *device, const uuid_le *guid,
 		unsigned char req_protocol_version, bool verbose);
+
+/*! Closes the session to me driver
+ *  Make sure that you call this function as soon as you are done with the device,
+ *  as other clients might be blocked until the session is closed.
+ *
+ *  \param me The mei handle
+ */
 void mei_deinit(struct mei *me);
 
+/*! Open mei device and starts a session with an mei client
+ *  If the application requested specific minimal protocol version
+ *  and client doesn't support that version
+ *  the handle state will be set to MEI_CL_STATE_VERSION_MISMATCH
+ *  but connection will be established
+ *
+ *  \param me The mei handle
+ *  \return 0 if successful, otherwise error code
+ */
 int mei_connect(struct mei *me);
 
+
+/*! return file descriptor to opened handle
+ *
+ *  \param me The mei handle
+ *  \return file descriptor or error
+ */
 int mei_get_fd(struct mei *me);
 
+/*! Read data from the mei device.
+ *
+ *  \param me The mei handle
+ *  \param buffer A pointer to a buffer that receives the data read from the mei device.
+ *  \param len The number of bytes to be read.
+ *  \return number of byte read if successful, otherwise error code
+ */
 ssize_t mei_recv_msg(struct mei *me, unsigned char *buffer, size_t len);
 
+/*! Writes the specified buffer to the mei device.
+ *
+ *  \param me The mei handle
+ *  \param buffer A pointer to the buffer containing the data to be written to the mei device.
+ *  \param len The number of bytes to be written.
+ *  \return number of bytes written if successful, otherwise error code
+ */
 ssize_t mei_send_msg(struct mei *me, const unsigned char *buffer, size_t len);
 
+/*! set dma buf, this API is not considered to be stable
+ *
+ * \param me The mei handle
+ * \param buf User space allocated buf
+ * \param length length of the buffer
+ */
 int mei_set_dma_buf(struct mei *me, const char *buf, size_t length);
 
 #ifdef __cplusplus
