@@ -81,6 +81,8 @@ void mei_deinit(struct mei *me);
 
 int mei_connect(struct mei *me);
 
+int mei_get_fd(struct mei *me);
+
 ssize_t mei_recv_msg(struct mei *me, unsigned char *buffer, size_t len);
 
 ssize_t mei_send_msg(struct mei *me, const unsigned char *buffer, size_t len);

@@ -122,6 +122,13 @@ static inline int __mei_errno_to_state(struct mei *me)
 	}
 }
 
+int mei_get_fd(struct mei *me)
+{
+	if (!me)
+		return -EINVAL;
+	return me->fd;
+}
+
 static inline int __mei_open(struct mei *me, const char *devname)
 {
 	errno = 0;
