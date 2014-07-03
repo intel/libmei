@@ -43,6 +43,7 @@
 #include <linux/mei.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <unistd.h>
 
 #ifdef __cplusplus
 extern "C" {
