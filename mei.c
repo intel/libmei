@@ -114,6 +114,7 @@ static inline int __mei_errno_to_state(struct mei *me)
 	case ENOTTY:    return MEI_CL_STATE_NOT_PRESENT;
 	case EBUSY:     return MEI_CL_STATE_DISCONNECTED;
 	case ENODEV:    return MEI_CL_STATE_DISCONNECTED;
+	case EOPNOTSUPP: return me->state;
 	default:        return MEI_CL_STATE_ERROR;
 	}
 }
@@ -137,6 +138,23 @@ static inline int __mei_connect(struct mei *me, struct mei_connect_client_data *
 {
 	errno = 0;
 	int rc = ioctl(me->fd, IOCTL_MEI_CONNECT_CLIENT, d);
+	me->last_err = errno;
+	return rc == -1 ? -me->last_err : 0;
+}
+
+static inline int __mei_notify_set(struct mei *me, uint32_t *enable)
+{
+	errno = 0;
+	int rc = ioctl(me->fd, IOCTL_MEI_NOTIFY_SET, enable);
+	me->last_err = errno;
+	return rc == -1 ? -me->last_err : 0;
+}
+
+static inline int __mei_notify_get(struct mei *me)
+{
+	errno = 0;
+	uint32_t notification;
+	int rc = ioctl(me->fd, IOCTL_MEI_NOTIFY_GET, &notification);
 	me->last_err = errno;
 	return rc == -1 ? -me->last_err : 0;
 }
@@ -304,6 +322,58 @@ ssize_t mei_send_msg(struct mei *me, const unsigned char *buffer, size_t len)
 	}
 
 	return rc;
+}
+
+int mei_notification_request(struct mei *me, bool enable)
+{
+	uint32_t _enable;
+	int rc;
+
+	if (!me)
+		return -EINVAL;
+
+	if (me->state != MEI_CL_STATE_CONNECTED) {
+		mei_err(me, "client is not connected [%d]\n", me->state);
+		return -EINVAL;
+	}
+
+	_enable = enable;
+	rc = __mei_notify_set(me, &_enable);
+	if (rc < 0) {
+		me->state = __mei_errno_to_state(me);
+		mei_err(me, "Cannot %s notification for client [%d]:%s\n",
+			enable ? "enable" : "disable", rc, strerror(-rc));
+		return rc;
+	}
+
+	me->notify_en = enable;
+
+	return 0;
+}
+
+int mei_notification_get(struct mei *me)
+{
+	int rc;
+
+	if (!me)
+		return -EINVAL;
+
+	if (me->state != MEI_CL_STATE_CONNECTED) {
+		mei_err(me, "client is not connected [%d]\n", me->state);
+		return -EINVAL;
+	}
+	if (!me->notify_en)
+		return -ENOTSUP;
+
+	rc = __mei_notify_get(me);
+	if (rc < 0) {
+		me->state = __mei_errno_to_state(me);
+		mei_err(me, "Cannot get notification for client [%d]:%s\n",
+			rc, strerror(-rc));
+		return rc;
+	}
+
+	return 0;
 }
 
 unsigned int mei_get_api_version()

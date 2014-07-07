@@ -58,7 +58,7 @@ extern "C" {
 
 /*! Library API version
  */
-#define LIBMEI_API_VERSION MEI_ENCODE_VERSION(1, 0)
+#define LIBMEI_API_VERSION MEI_ENCODE_VERSION(1, 1)
 
 /*! Get current supported library API version
  *
@@ -87,6 +87,7 @@ struct mei {
 	int fd;                 /**< connection file descriptor */
 	int state;              /**< client connection state */
 	int last_err;           /**< saved errno */
+	bool notify_en;         /**< notification is enabled */
 	bool verbose;           /**< verbose execution */
 };
 
@@ -169,6 +170,23 @@ ssize_t mei_recv_msg(struct mei *me, unsigned char *buffer, size_t len);
  *  \return number of bytes written if successful, otherwise error code
  */
 ssize_t mei_send_msg(struct mei *me, const unsigned char *buffer, size_t len);
+
+/*! Request to Enable or Disable Event Notification
+ *
+ *  \param me The mei handle
+ *  \param enable A boolean to enable or disable event notification
+ *  \return 0 if successful, otherwise error code
+ */
+int mei_notification_request(struct mei *me, bool enable);
+
+/*! Acknowledge an event and enable further notification
+ *  notification events are signaled as priority events (POLLPRI) on select/poll
+ *
+ *  \param me The mei handle
+ *  \return 0 if successful, otherwise error code. -ENOTSUPP is returned
+ *  in case the event notification was not enabled
+ */
+int mei_notification_get(struct mei *me);
 
 #ifdef __cplusplus
 }
