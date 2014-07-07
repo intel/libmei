@@ -258,19 +258,17 @@ int mei_connect(struct mei *me)
 	mei_msg(me, "max_message_length %d\n", cl->max_msg_length);
 	mei_msg(me, "protocol_version %d\n", cl->protocol_version);
 
-	/* FIXME: need to be exported otherwise */
-	if ((me->prot_ver > 0) &&
-	     (cl->protocol_version != me->prot_ver)) {
+	if ((me->prot_ver > 0) && (cl->protocol_version < me->prot_ver)) {
 		mei_err(me, "Intel MEI protocol version not supported\n");
-		return -EINVAL;
+		me->state =  MEI_CL_STATE_VERSION_MISMATCH;
+		rc = -EINVAL;
+	} else {
+		me->buf_size = cl->max_msg_length;
+		me->prot_ver = cl->protocol_version;
+		me->state =  MEI_CL_STATE_CONNECTED;
 	}
 
-	me->buf_size = cl->max_msg_length;
-	me->prot_ver = cl->protocol_version;
-
-	me->state =  MEI_CL_STATE_CONNECTED;
-
-	return 0;
+	return rc ;
 }
 
 ssize_t mei_recv_msg(struct mei *me, unsigned char *buffer, size_t len)

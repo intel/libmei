@@ -55,6 +55,7 @@ enum {
 	MEI_CL_STATE_CONNECTED,         /** client is connected */
 	MEI_CL_STATE_DISCONNECTED,      /** client is disconnected */
 	MEI_CL_STATE_NOT_PRESENT,       /** client with GUID is not present in the system */
+	MEI_CL_STATE_VERSION_MISMATCH,  /** client version not supported */
 	MEI_CL_STATE_ERROR,             /** client is in error state */
 };
 
