@@ -345,3 +345,7 @@ int mei_set_dma_buf(struct mei *me, const char *buf, size_t length)
 	return data.handle;
 }
 
+unsigned int mei_get_api_version()
+{
+	return LIBMEI_API_VERSION;
+}

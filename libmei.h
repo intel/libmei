@@ -52,6 +52,20 @@
 extern "C" {
 #endif /*  __cplusplus */
 
+/*! Library API version encode helper
+ */
+#define MEI_ENCODE_VERSION(major, minor)   ((major) << 16 | (minor) << 8)
+
+/*! Library API version
+ */
+#define LIBMEI_API_VERSION MEI_ENCODE_VERSION(1, 0)
+
+/*! Get current supported library API version
+ *
+ * \return version value
+ */
+unsigned int mei_get_api_version();
+
 /*! ME client connection state
  */
 enum mei_cl_state {
