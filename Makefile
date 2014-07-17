@@ -2,6 +2,7 @@
 INSTALL := install
 PACKAGE := libmei
 HEADERS := libmei.h
+SOURCES := mei.c
 #
 MEI := mei
 LIBS := lib$(MEI).so
@@ -48,7 +49,7 @@ install_lib: $(LIBS)
 install_headers: $(HEADERS)
 	$(INSTALL) -m 0644 -D $^ $(INCDIR)/$^
 
-doc:
+doc: $(HEADERS) $(SOURCES)
 	$(MAKE) -C doc $(TARGET) SRCDIR=$(PWD)
 
 .PHONY: clean tags doc dist-clean
