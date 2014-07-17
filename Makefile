@@ -32,6 +32,10 @@ pack: ver=$(shell git describe)
 pack:
 	git archive --format=tar --prefix=$(PACKAGE)-$(ver)/ HEAD | gzip > $(PACKAGE)-$(ver).tar.gz
 
+pack-doc: ver=$(shell git describe)
+pack-doc: doc
+	tar -czf $(PACKAGE)-doc-$(ver).tar.gz doc/html
+
 tags: $(wildcard *.[ch])
 	ctags $^
 
