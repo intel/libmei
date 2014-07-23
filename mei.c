@@ -62,7 +62,7 @@
 #define mei_err(_me, fmt, ARGS...) ALOGE_IF(_me->verbose, fmt, ##ARGS)
 static inline void __dump_buffer(const char *buf)
 {
-	ALOGV("%s\n" buf);
+	ALOGV("%s\n", buf);
 }
 
 #else /* ! ANDROID */
