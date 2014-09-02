@@ -170,14 +170,6 @@ ssize_t mei_recv_msg(struct mei *me, unsigned char *buffer, size_t len);
  */
 ssize_t mei_send_msg(struct mei *me, const unsigned char *buffer, size_t len);
 
-/*! set dma buf, this API is not considered to be stable
- *
- * \param me The mei handle
- * \param buf User space allocated buf
- * \param length length of the buffer
- */
-int mei_set_dma_buf(struct mei *me, const char *buf, size_t length);
-
 #ifdef __cplusplus
 }
 #endif /*  __cplusplus */

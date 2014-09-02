@@ -46,10 +46,6 @@
 #include <stdbool.h>
 #include <linux/mei.h>
 
-#ifndef IOCTL_MEI_SETUP_DMA_BUF
-#include <linux/mei_i.h>
-#endif
-
 #include "libmei.h"
 
 /*****************************************************************************
@@ -141,14 +137,6 @@ static inline int __mei_connect(struct mei *me, struct mei_connect_client_data *
 {
 	errno = 0;
 	int rc = ioctl(me->fd, IOCTL_MEI_CONNECT_CLIENT, d);
-	me->last_err = errno;
-	return rc == -1 ? -me->last_err : 0;
-}
-
-static inline int __mei_dma_buff(struct mei *me, struct mei_client_dma_data *d)
-{
-	errno = 0;
-	int rc = ioctl(me->fd, IOCTL_MEI_SETUP_DMA_BUF, d);
 	me->last_err = errno;
 	return rc == -1 ? -me->last_err : 0;
 }
@@ -313,36 +301,6 @@ ssize_t mei_send_msg(struct mei *me, const unsigned char *buffer, size_t len)
 	}
 
 	return rc;
-}
-
-int mei_set_dma_buf(struct mei *me, const char *buf, size_t length)
-{
-	struct mei_client_dma_data data;
-	int rc;
-
-	if (!me)
-		return -EINVAL;
-
-	if (!buf || length == 0)
-		return -EINVAL;
-
-	if (me->state != MEI_CL_STATE_CONNECTED)
-		return -EINVAL;
-
-	data.userptr = (unsigned long)buf;
-	data.length = length;
-	data.handle = 0;
-
-	rc = __mei_dma_buff(me, &data);
-	if (rc < 0) {
-		me->state = __mei_errno_to_state(me);
-		mei_err(me, "Cannot set dma buffer to client [%d]:%s\n", rc, strerror(-rc));
-		return rc;
-	}
-
-	mei_msg(me, "dma handle %d\n", data.handle);
-
-	return data.handle;
 }
 
 unsigned int mei_get_api_version()
