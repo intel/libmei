@@ -173,10 +173,8 @@ int mei_init(struct mei *me, const char *device, const uuid_le *guid,
 
 	me->verbose = verbose;
 
-	if (me->verbose) {
-		mei_msg(me, "API version %hhd.%hhd\n",
-			mei_get_api_version() >> 16, mei_get_api_version() >> 8);
-	}
+	mei_msg(me, "API version %hhd.%hhd\n",
+		mei_get_api_version() >> 16, mei_get_api_version() >> 8);
 
 	rc = __mei_open(me, device);
 	if (rc < 0) {
