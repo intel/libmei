@@ -55,7 +55,7 @@
 #define LOG_TAG "libmei"
 #include <cutils/log.h>
 #define mei_msg(_me, fmt, ARGS...) ALOGV_IF(_me->verbose, fmt, ##ARGS)
-#define mei_err(_me, fmt, ARGS...) ALOGE_IF(_me->verbose, fmt, ##ARGS)
+#define mei_err(_me, fmt, ARGS...) ALOGE(fmt, ##ARGS)
 static inline void __dump_buffer(const char *buf)
 {
 	ALOGV("%s\n", buf);
