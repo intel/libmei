@@ -24,9 +24,12 @@ INCDIR ?= /usr/include/$(MEI)
 lib%.so: %.o
 	$(CC) $(LDFLAGS) --shared $^ -o $@
 
-clean: TARGET=clean
-clean: doc
-	$(RM) $(PROGS) $(LIBS) *.o
+clean:
+	$(RM) $(LIBS) *.o
+
+dist-clean: TARGET=clean
+dist-clean: doc clean
+	$(RM) tags
 
 pack: ver=$(shell git describe)
 pack:
@@ -48,4 +51,4 @@ install_headers: $(HEADERS)
 doc:
 	$(MAKE) -C doc $(TARGET) SRCDIR=$(PWD)
 
-.PHONY: clean tags doc
+.PHONY: clean tags doc dist-clean
