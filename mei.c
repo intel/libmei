@@ -384,7 +384,7 @@ int mei_notification_get(struct mei *me)
 	return 0;
 }
 
-unsigned int mei_get_api_version()
+unsigned int mei_get_api_version(void)
 {
 	return LIBMEI_API_VERSION;
 }
