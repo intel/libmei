@@ -75,11 +75,12 @@ static inline void __dump_buffer(const char *buf)
 }
 #endif /* ANDROID */
 
-static void mei_dump_hex_buffer(const unsigned char *buf, size_t len)
+static void dump_hex_buffer(const unsigned char *buf, size_t len)
 {
 	const size_t pbufsz = 16 * 3;
 	char pbuf[pbufsz];
 	int j = 0;
+
 	while (len-- > 0) {
 		snprintf(&pbuf[j], pbufsz - j, "%02X ", *buf++);
 		j += 3;
@@ -90,6 +91,15 @@ static void mei_dump_hex_buffer(const unsigned char *buf, size_t len)
 	}
 	if (j)
 		__dump_buffer(pbuf);
+}
+
+static void mei_dump_hex_buffer(struct mei *me,
+				const unsigned char *buf, size_t len)
+{
+	if (!me->verbose)
+		return;
+
+	dump_hex_buffer(buf, len);
 }
 
 void mei_deinit(struct mei *me)
@@ -296,8 +306,7 @@ ssize_t mei_recv_msg(struct mei *me, unsigned char *buffer, size_t len)
 		goto out;
 	}
 	mei_msg(me, "read succeeded with result %zd\n", rc);
-	if (me->verbose)
-		mei_dump_hex_buffer(buffer, rc);
+	mei_dump_hex_buffer(me, buffer, rc);
 out:
 	return rc;
 }
@@ -310,8 +319,7 @@ ssize_t mei_send_msg(struct mei *me, const unsigned char *buffer, size_t len)
 		return -EINVAL;
 
 	mei_msg(me, "call write length = %zd\n", len);
-	if (me->verbose)
-		mei_dump_hex_buffer(buffer, len);
+	mei_dump_hex_buffer(me, buffer, len);
 
 	rc  = __mei_write(me, buffer, len);
 	if (rc < 0) {
