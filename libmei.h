@@ -1,12 +1,11 @@
 /******************************************************************************
- * Intel Management Engine Interface (Intel MEI) Linux driver
- * Intel MEI Interface Header
+ * Intel Management Engine Interface (Intel MEI) Library
  *
  * This file is provided under BSD license.
  *
  * BSD LICENSE
  *
- * Copyright(c) 2003 - 2014 Intel Corporation. All rights reserved.
+ * Copyright(c) 2013 - 2016 Intel Corporation. All rights reserved.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
