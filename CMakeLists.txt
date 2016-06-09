@@ -23,6 +23,10 @@ set_target_properties(mei PROPERTIES PUBLIC_HEADER libmei.h)
 set_target_properties(mei PROPERTIES VERSION ${MEI_VERSION_STRING})
 set_target_properties(mei PROPERTIES SOVERSION ${MEI_VERSION_STRING})
 
+add_library(mei-static STATIC ${MEI_SOURCES} ${MEI_HEADERS})
+set_target_properties(mei-static PROPERTIES
+	OUTPUT_NAME mei CLEAN_DIRECT_OUTPUT 1)
+
 install(TARGETS mei
         LIBRARY DESTINATION lib
 	PUBLIC_HEADER DESTINATION include)
