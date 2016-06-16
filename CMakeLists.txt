@@ -8,6 +8,13 @@ set(MEI_VERSION_MINOR 1)
 set(MEI_VERSION_PATCH 0)
 set(MEI_VERSION_STRING ${MEI_VERSION_MAJOR}.${MEI_VERSION_MINOR}.${MEI_VERSION_PATCH})
 
+include(CheckSymbolExists)
+check_symbol_exists(IOCTL_MEI_NOTIFY_GET linux/mei.h HAVE_GLOBAL_MEI_H)
+
+if(NOT HAVE_GLOBAL_MEI_H)
+include_directories(BEFORE "include")
+endif(NOT HAVE_GLOBAL_MEI_H)
+
 set(MEI_SOURCES mei.c)
 set(MEI_HEADERS libmei.h)
 
