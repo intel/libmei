@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 2.8)
-project(libmei)
+cmake_minimum_required(VERSION 3.0)
+project(mei)
 
 
 set(LICENSE BSD)
@@ -18,16 +18,20 @@ endif(NOT HAVE_GLOBAL_MEI_H)
 set(MEI_SOURCES mei.c)
 set(MEI_HEADERS libmei.h)
 
-add_library(mei SHARED ${MEI_SOURCES} ${MEI_HEADERS})
-set_target_properties(mei PROPERTIES PUBLIC_HEADER libmei.h)
-set_target_properties(mei PROPERTIES VERSION ${MEI_VERSION_STRING})
-set_target_properties(mei PROPERTIES SOVERSION ${MEI_VERSION_STRING})
+add_library(${PROJECT_NAME}_objlib OBJECT ${MEI_SOURCES} ${MEI_HEADERS})
+set_target_properties(${PROJECT_NAME}_objlib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-add_library(mei-static STATIC ${MEI_SOURCES} ${MEI_HEADERS})
-set_target_properties(mei-static PROPERTIES
-	OUTPUT_NAME mei CLEAN_DIRECT_OUTPUT 1)
+add_library(${PROJECT_NAME}_shared SHARED $<TARGET_OBJECTS:${PROJECT_NAME}_objlib>)
+set_target_properties(${PROJECT_NAME}_shared PROPERTIES PUBLIC_HEADER libmei.h)
+set_target_properties(${PROJECT_NAME}_shared PROPERTIES VERSION ${MEI_VERSION_STRING})
+set_target_properties(${PROJECT_NAME}_shared PROPERTIES SOVERSION ${MEI_VERSION_STRING})
+set_target_properties(${PROJECT_NAME}_shared PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
 
-install(TARGETS mei
+add_library(${PROJECT_NAME}_static STATIC $<TARGET_OBJECTS:${PROJECT_NAME}_objlib>)
+set_target_properties(${PROJECT_NAME}_static PROPERTIES PUBLIC_HEADER libmei.h)
+set_target_properties(${PROJECT_NAME}_static PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
+
+install(TARGETS ${PROJECT_NAME}_shared
         LIBRARY DESTINATION lib
 	PUBLIC_HEADER DESTINATION include)
 
