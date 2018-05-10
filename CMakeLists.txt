@@ -31,8 +31,9 @@ add_library(${PROJECT_NAME}_static STATIC $<TARGET_OBJECTS:${PROJECT_NAME}_objli
 set_target_properties(${PROJECT_NAME}_static PROPERTIES PUBLIC_HEADER libmei.h)
 set_target_properties(${PROJECT_NAME}_static PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
 
-install(TARGETS ${PROJECT_NAME}_shared
+install(TARGETS ${PROJECT_NAME}_shared ${PROJECT_NAME}_static
         LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
 	PUBLIC_HEADER DESTINATION include)
 
 # Documentation
