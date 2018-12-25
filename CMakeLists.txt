@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(mei)
+project(mei C)
 
 
 set(LICENSE BSD)
@@ -47,7 +47,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in
 add_custom_target(doc
 	${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/doc/Doxyfile
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-	COMMENT "Generating  documentation with Doxygen" VERBATIM)
+	COMMENT "Generating documentation with Doxygen" VERBATIM)
 endif(DOXYGEN_FOUND)
 
 
