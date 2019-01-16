@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (C) 2013-2019 Intel Corporation
 LOCAL_PATH := $(call my-dir)
 
 ## MEI Library
@@ -12,7 +14,7 @@ LOCAL_COPY_HEADERS_TO := libmei
 LOCAL_COPY_HEADERS := libmei.h
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/include
 LOCAL_SHARED_LIBRARIES := libcutils
-
+LOCAL_PROPRIETARY_MODULE := true
 include $(BUILD_SHARED_LIBRARY)
 
 
