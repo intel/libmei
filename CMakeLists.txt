@@ -19,6 +19,12 @@ endif(NOT HAVE_GLOBAL_MEI_H)
 set(MEI_SOURCES mei.c)
 set(MEI_HEADERS libmei.h)
 
+#Secure compile flags
+add_definitions(-Wall -Wextra -Wsign-compare -Wformat-security -Winit-self)
+add_definitions(-fstack-protector-all --param ssp-buffer-size=4 -ftrapv)
+add_definitions(-D_FORTIFY_SOURCE=2 -O2)
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -z noexecstack -z relro -z now")
+
 add_library(${PROJECT_NAME}_objlib OBJECT ${MEI_SOURCES} ${MEI_HEADERS})
 set_target_properties(${PROJECT_NAME}_objlib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
