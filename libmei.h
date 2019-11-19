@@ -173,7 +173,7 @@ int mei_notification_get(struct mei *me);
 /*! Obtains FW status of device
  *
  *  \param me The mei handle
- *  \param fwsts_num The FW status register number (1-6).
+ *  \param fwsts_num The FW status register number (0-5).
  *  \param fwsts FW status to fill
  *  \return 0 if successful, otherwise error code
  */

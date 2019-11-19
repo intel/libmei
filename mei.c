@@ -200,7 +200,7 @@ static inline int __mei_fwsts(struct mei *me, const char *device,
 	}
 
 	errno = 0;
-	len = pread(fd, line, FWSTS_LEN, (fwsts_num - 1) * FWSTS_LEN);
+	len = pread(fd, line, FWSTS_LEN, fwsts_num * FWSTS_LEN);
 	if (len == -1) {
 		me->last_err = errno;
 		close(fd);
@@ -439,8 +439,8 @@ int mei_fwstatus(struct mei *me, uint32_t fwsts_num, uint32_t *fwsts)
 	if (!me || !fwsts)
 		return -EINVAL;
 
-	if (fwsts_num < 1 || fwsts_num > 6) {
-		mei_err(me, "FW status number should be 1..6\n");
+	if (fwsts_num > 5) {
+		mei_err(me, "FW status number should be 0..5\n");
 		return -EINVAL;
 	}
 
