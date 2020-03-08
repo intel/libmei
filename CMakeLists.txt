@@ -1,12 +1,13 @@
 # SPDX-License-Identifier: BSD-3-Clause
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.10)
 project(mei C)
 
 set(LICENSE BSD)
 set(MEI_VERSION_MAJOR 1)
 set(MEI_VERSION_MINOR 2)
 set(MEI_VERSION_PATCH 0)
-set(MEI_VERSION_STRING ${MEI_VERSION_MAJOR}.${MEI_VERSION_MINOR}.${MEI_VERSION_PATCH})
+set(MEI_VERSION_STRING
+    ${MEI_VERSION_MAJOR}.${MEI_VERSION_MINOR}.${MEI_VERSION_PATCH})
 
 include(CheckSymbolExists)
 check_symbol_exists(IOCTL_MEI_NOTIFY_GET linux/mei.h HAVE_GLOBAL_MEI_H)
@@ -19,7 +20,8 @@ set(MEI_SOURCES mei.c)
 set(MEI_HEADERS libmei.h)
 
 #Secure compile flags
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -z noexecstack -z relro -z now")
+set(CMAKE_SHARED_LINKER_FLAGS
+    "${CMAKE_SHARED_LINKER_FLAGS} -z noexecstack -z relro -z now")
 
 add_library(${PROJECT_NAME}_objlib OBJECT ${MEI_SOURCES} ${MEI_HEADERS})
 set_target_properties(${PROJECT_NAME}_objlib
@@ -31,15 +33,21 @@ target_compile_options(${PROJECT_NAME}_objlib
             -Wformat -Wformat-security -Winit-self
 )
 
-add_library(${PROJECT_NAME}_shared SHARED $<TARGET_OBJECTS:${PROJECT_NAME}_objlib>)
-set_target_properties(${PROJECT_NAME}_shared PROPERTIES PUBLIC_HEADER libmei.h)
-set_target_properties(${PROJECT_NAME}_shared PROPERTIES VERSION ${MEI_VERSION_STRING})
-set_target_properties(${PROJECT_NAME}_shared PROPERTIES SOVERSION ${MEI_VERSION_STRING})
-set_target_properties(${PROJECT_NAME}_shared PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
+# Shared Library
+add_library(${PROJECT_NAME}_shared SHARED
+            $<TARGET_OBJECTS:${PROJECT_NAME}_objlib>)
+set_target_properties(${PROJECT_NAME}_shared PROPERTIES
+                      PUBLIC_HEADER libmei.h
+                      VERSION ${MEI_VERSION_STRING}
+                      SOVERSION ${MEI_VERSION_STRING}
+                      OUTPUT_NAME ${PROJECT_NAME})
 
-add_library(${PROJECT_NAME}_static STATIC $<TARGET_OBJECTS:${PROJECT_NAME}_objlib>)
-set_target_properties(${PROJECT_NAME}_static PROPERTIES PUBLIC_HEADER libmei.h)
-set_target_properties(${PROJECT_NAME}_static PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
+# Static Library
+add_library(${PROJECT_NAME}_static STATIC
+            $<TARGET_OBJECTS:${PROJECT_NAME}_objlib>)
+set_target_properties(${PROJECT_NAME}_static PROPERTIES
+                      PUBLIC_HEADER libmei.h
+                      OUTPUT_NAME ${PROJECT_NAME})
 
 install(TARGETS ${PROJECT_NAME}_shared ${PROJECT_NAME}_static
         LIBRARY DESTINATION lib
@@ -59,7 +67,6 @@ if(DOXYGEN_FOUND)
                       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                       COMMENT "Generating documentation with Doxygen" VERBATIM)
 endif()
-
 
 # CPack
 set(CPACK_PACKAGE_NAME "libmei")
@@ -85,5 +92,4 @@ set(CPACK_DEBIAN_PACKAGE_VERSION 1)
 set(CPACK_DEBIAN_PACKAGE_SECTION "devel")
 
 set(CPACK_GENERATOR "RPM;DEB")
-
 include(CPack)
