@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
+# Copyright (C) 2016-2020 Intel Corporation
 cmake_minimum_required(VERSION 3.10)
 project(mei C)
 
