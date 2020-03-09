@@ -91,5 +91,14 @@ set(CPACK_RPM_PACKAGE_GROUP "Development")
 set(CPACK_DEBIAN_PACKAGE_VERSION 1)
 set(CPACK_DEBIAN_PACKAGE_SECTION "devel")
 
-set(CPACK_GENERATOR "RPM;DEB")
+find_program(RPM_EXE rpmbuild)
+if(RPM_EXE)
+    list (APPEND CPACK_GENERATOR "RPM")
+endif()
+
+find_program(DEB_EXE debuild)
+if(DEB_EXE)
+    list (APPEND CPACK_GENERATOR "DEB")
+endif()
+
 include(CPack)
