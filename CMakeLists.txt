@@ -3,11 +3,7 @@ cmake_minimum_required(VERSION 3.10)
 project(mei C)
 
 set(LICENSE BSD)
-set(MEI_VERSION_MAJOR 1)
-set(MEI_VERSION_MINOR 2)
-set(MEI_VERSION_PATCH 0)
-set(MEI_VERSION_STRING
-    ${MEI_VERSION_MAJOR}.${MEI_VERSION_MINOR}.${MEI_VERSION_PATCH})
+include (version.cmake)
 
 include(CheckSymbolExists)
 check_symbol_exists(IOCTL_MEI_NOTIFY_GET linux/mei.h HAVE_GLOBAL_MEI_H)
