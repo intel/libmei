@@ -1,5 +1,5 @@
-# SPDX-License-Identifier: BSD-3-Clause Copyright (C) 2016-2020 Intel
-# Corporation
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (C) 2016-2020 Intel Corporation
 cmake_minimum_required(VERSION 3.10)
 project(mei C)
 
@@ -13,16 +13,20 @@ if(NOT HAVE_GLOBAL_MEI_H)
     include_directories(BEFORE "include")
 endif()
 
+# Library sources
 set(MEI_SOURCES mei.c)
 set(MEI_HEADERS libmei.h)
 
-# Secure compile flags
+# Security linker flags
 set(CMAKE_SHARED_LINKER_FLAGS
     "${CMAKE_SHARED_LINKER_FLAGS} -z noexecstack -z relro -z now")
 
+# Create object library
 add_library(${PROJECT_NAME}_objlib OBJECT ${MEI_SOURCES} ${MEI_HEADERS})
 set_target_properties(${PROJECT_NAME}_objlib
                       PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+# Compilation options
 target_compile_options(
     ${PROJECT_NAME}_objlib
     PRIVATE -Wall
@@ -85,6 +89,7 @@ set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "MEI Interface Library")
 set(CPACK_PACKAGE_CONTACT "linux-mei@linux.intel.com")
 set(CPACK_PACKAGE_DESCRIPTION_FILE ${PROJECT_SOURCE_DIR}/DESCRIPTION)
 
+# Source Package
 set(CPACK_SOURCE_GENERATOR "TBZ2")
 set(CPACK_SOURCE_PACKAGE_FILE_NAME ${CMAKE_PROJECT_NAME}-${MEI_VERSION_STRING})
 add_custom_target(
@@ -97,16 +102,14 @@ set(LICENSE BSD)
 set(CPACK_RPM_PACKAGE_RELEASE 1)
 set(CPACK_RPM_PACKAGE_LICENSE ${LICENSE})
 set(CPACK_RPM_PACKAGE_GROUP "Development")
-
-# Debian Specific
-set(CPACK_DEBIAN_PACKAGE_VERSION 1)
-set(CPACK_DEBIAN_PACKAGE_SECTION "devel")
-
 find_program(RPM_EXE rpmbuild)
 if(RPM_EXE)
     list(APPEND CPACK_GENERATOR "RPM")
 endif()
 
+# Debian Specific
+set(CPACK_DEBIAN_PACKAGE_VERSION 1)
+set(CPACK_DEBIAN_PACKAGE_SECTION "devel")
 find_program(DEB_EXE debuild)
 if(DEB_EXE)
     list(APPEND CPACK_GENERATOR "DEB")
