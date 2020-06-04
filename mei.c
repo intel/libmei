@@ -10,6 +10,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
+#include <linux/limits.h>
 #include <unistd.h>
 #include <errno.h>
 #include <stdint.h>
@@ -81,7 +82,7 @@ void mei_deinit(struct mei *me)
 	if (!me)
 		return;
 
-	if (me->fd != -1)
+	if (me->close_on_exit && me->fd != -1)
 		close(me->fd);
 	me->fd = -1;
 	me->buf_size = 0;
@@ -237,6 +238,7 @@ int mei_init(struct mei *me, const char *device, const uuid_le *guid,
 
 	/* if me is uninitialized it will close wrong file descriptor */
 	me->fd = -1;
+	me->close_on_exit = true;
 	me->device = NULL;
 	mei_deinit(me);
 
@@ -268,8 +270,67 @@ int mei_init(struct mei *me, const char *device, const uuid_le *guid,
 	return 0;
 }
 
-struct mei *mei_alloc(const char *device, const uuid_le *guid,
+static int __mei_fd_to_devname(struct mei *me, int fd)
+{
+	char name[PATH_MAX];
+	char proc[PATH_MAX];
+	int ret;
+
+	ret = snprintf(proc, PATH_MAX, "/proc/self/fd/%d", fd);
+	if (ret >= PATH_MAX) {
+		mei_err(me, "Proc path is too long\n");
+		return -ENAMETOOLONG;
+	}
+
+	errno = 0;
+	ret = readlink(proc, name, PATH_MAX);
+	if (ret == -1) {
+		mei_err(me, "Cannot obtain device name %d\n", errno);
+		return -errno;
+	}
+
+	me->device = strdup(name);
+	if (!me->device)
+		return -ENOMEM;
+
+	return 0;
+}
+
+int mei_init_fd(struct mei *me, int fd, const uuid_le *guid,
 		unsigned char req_protocol_version, bool verbose)
+{
+	int ret;
+
+	if (!me || fd < 0 || !guid)
+		return -EINVAL;
+
+	/* if me is uninitialized it will close wrong file descriptor */
+	me->close_on_exit = false;
+	me->device = NULL;
+	mei_deinit(me);
+	me->fd = fd;
+
+	me->verbose = verbose;
+
+	mei_msg(me, "API version %u.%u\n",
+		mei_get_api_version() >> 16 & 0xFF,
+		mei_get_api_version() >> 8 & 0xFF);
+
+	memcpy(&me->guid, guid, sizeof(*guid));
+	me->prot_ver = req_protocol_version;
+
+	ret = __mei_fd_to_devname(me, fd);
+	if (ret)
+		return ret;
+
+	me->state = MEI_CL_STATE_INITIALIZED;
+
+	return ret;
+
+}
+
+struct mei *mei_alloc(const char *device, const uuid_le *guid,
+		      unsigned char req_protocol_version, bool verbose)
 {
 	struct mei *me;
 
@@ -281,6 +342,25 @@ struct mei *mei_alloc(const char *device, const uuid_le *guid,
 		return NULL;
 
 	if (mei_init(me, device, guid, req_protocol_version, verbose)) {
+		free(me);
+		return NULL;
+	}
+	return me;
+}
+
+struct mei *mei_alloc_fd(const int fd, const uuid_le *guid,
+			 unsigned char req_protocol_version, bool verbose)
+{
+	struct mei *me = NULL;
+
+	if (!guid || fd < 0)
+		return NULL;
+
+	me = malloc(sizeof(*me));
+	if (!me)
+		return NULL;
+
+	if (mei_init_fd(me, fd, guid, req_protocol_version, verbose)) {
 		free(me);
 		return NULL;
 	}
