@@ -1,7 +1,7 @@
 /*
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * Copyright(c) 2013 - 2019 Intel Corporation. All rights reserved.
+ * Copyright(c) 2013 - 2020 Intel Corporation. All rights reserved.
  *
  * Intel Management Engine Interface (Intel MEI) Library
  */
@@ -33,17 +33,17 @@ static inline void __dump_buffer(const char *buf)
 }
 
 #else /* ! ANDROID */
-#define mei_msg(_me, fmt, ARGS...) do {         \
-	if (_me->verbose)                       \
-		fprintf(stderr, "me: " fmt, ##ARGS);	\
+#define mei_msg(_me, fmt, ARGS...) do {              \
+	if (_me->verbose)                            \
+		fprintf(stderr, "me: " fmt, ##ARGS);  \
 } while (0)
 
-#define mei_err(_me, fmt, ARGS...) do {         \
-	fprintf(stderr, "me: error: " fmt, ##ARGS); \
-} while (0)
+#define mei_err(_me, fmt, ARGS...) \
+	fprintf(stderr, "me: error: " fmt, ##ARGS)
+
 static inline void __dump_buffer(const char *buf)
 {
-	fprintf(stderr, "%s\n", buf);;
+	fprintf(stderr, "%s\n", buf);
 }
 #endif /* ANDROID */
 
@@ -116,11 +116,14 @@ static int __mei_set_nonblock(struct mei *me)
 {
 	int flags;
 	int rc;
+
+	errno = 0;
 	flags = fcntl(me->fd, F_GETFL, 0);
 	if (flags == -1) {
 		me->last_err = errno;
 		return -me->last_err;
 	}
+	errno = 0;
 	rc = fcntl(me->fd, F_SETFL, flags | O_NONBLOCK);
 	if (rc < 0) {
 		me->last_err = errno;
@@ -139,25 +142,31 @@ static inline int __mei_open(struct mei *me, const char *devname)
 
 static inline int __mei_connect(struct mei *me, struct mei_connect_client_data *d)
 {
+	int rc;
+
 	errno = 0;
-	int rc = ioctl(me->fd, IOCTL_MEI_CONNECT_CLIENT, d);
+	rc = ioctl(me->fd, IOCTL_MEI_CONNECT_CLIENT, d);
 	me->last_err = errno;
 	return rc == -1 ? -me->last_err : 0;
 }
 
 static inline int __mei_notify_set(struct mei *me, uint32_t *enable)
 {
+	int rc;
+
 	errno = 0;
-	int rc = ioctl(me->fd, IOCTL_MEI_NOTIFY_SET, enable);
+	rc = ioctl(me->fd, IOCTL_MEI_NOTIFY_SET, enable);
 	me->last_err = errno;
 	return rc == -1 ? -me->last_err : 0;
 }
 
 static inline int __mei_notify_get(struct mei *me)
 {
-	errno = 0;
 	uint32_t notification;
-	int rc = ioctl(me->fd, IOCTL_MEI_NOTIFY_GET, &notification);
+	int rc;
+
+	errno = 0;
+	rc = ioctl(me->fd, IOCTL_MEI_NOTIFY_GET, &notification);
 	me->last_err = errno;
 	return rc == -1 ? -me->last_err : 0;
 }
@@ -165,6 +174,7 @@ static inline int __mei_notify_get(struct mei *me)
 static inline ssize_t __mei_read(struct mei *me, unsigned char *buf, size_t len)
 {
 	ssize_t rc;
+
 	errno = 0;
 	rc = read(me->fd, buf, len);
 	me->last_err = errno;
@@ -174,6 +184,7 @@ static inline ssize_t __mei_read(struct mei *me, unsigned char *buf, size_t len)
 static inline ssize_t __mei_write(struct mei *me, const unsigned char *buf, size_t len)
 {
 	ssize_t rc;
+
 	errno = 0;
 	rc = write(me->fd, buf, len);
 	me->last_err = errno;
@@ -189,11 +200,11 @@ static inline int __mei_fwsts(struct mei *me, const char *device,
 	char path[FWSTS_FILENAME_LEN];
 	int fd;
 	char line[FWSTS_LEN];
-	unsigned long int cnv;
+	unsigned long cnv;
 	ssize_t len;
 
-	if(snprintf(path, FWSTS_FILENAME_LEN,
-		    "/sys/class/mei/%s/fw_status", device) < 0)
+	if (snprintf(path, FWSTS_FILENAME_LEN,
+		     "/sys/class/mei/%s/fw_status", device) < 0)
 		return -EINVAL;
 	path[FWSTS_FILENAME_LEN - 1] = '\0';
 
@@ -422,7 +433,7 @@ int mei_connect(struct mei *me)
 		me->state =  MEI_CL_STATE_CONNECTED;
 	}
 
-	return rc ;
+	return rc;
 }
 
 ssize_t mei_recv_msg(struct mei *me, unsigned char *buffer, size_t len)

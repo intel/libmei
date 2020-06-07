@@ -1,12 +1,12 @@
 /*
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * Copyright(c) 2013 - 2019 Intel Corporation. All rights reserved.
+ * Copyright(c) 2013 - 2020 Intel Corporation. All rights reserved.
  *
  * Intel Management Engine Interface (Intel MEI) Library
  */
 /*! \file libmei.h
-    \brief mei library API
+ *  \brief mei library API
  */
 #ifndef __LIBMEI_H__
 #define __LIBMEI_H__
@@ -33,7 +33,7 @@ extern "C" {
  *
  * \return version value
  */
-unsigned int mei_get_api_version();
+unsigned int mei_get_api_version(void);
 
 /*! ME client connection state
  */
@@ -70,7 +70,7 @@ struct mei {
 /*! Default path to mei device
  */
 #define MEI_DEFAULT_DEVICE_PREFIX "/dev/"
-#define MEI_DEFAULT_DEVICE MEI_DEFAULT_DEVICE_PREFIX MEI_DEFAULT_DEVICE_NAME
+#define MEI_DEFAULT_DEVICE (MEI_DEFAULT_DEVICE_PREFIX MEI_DEFAULT_DEVICE_NAME)
 
 /*! Allocate and initialize me handle structure
  *
