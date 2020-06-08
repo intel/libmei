@@ -259,7 +259,7 @@ int mei_init(struct mei *me, const char *device, const uuid_le *guid,
 	me->prot_ver = req_protocol_version;
 	me->device = strdup(device);
 
-	me->state = MEI_CL_STATE_INTIALIZED;
+	me->state = MEI_CL_STATE_INITIALIZED;
 
 	return 0;
 }
@@ -307,7 +307,7 @@ int mei_connect(struct mei *me)
 	if (!me)
 		return -EINVAL;
 
-	if (me->state != MEI_CL_STATE_INTIALIZED &&
+	if (me->state != MEI_CL_STATE_INITIALIZED &&
 	    me->state != MEI_CL_STATE_DISCONNECTED) {
 		mei_err(me, "client state [%d]\n", me->state);
 		return -EINVAL;

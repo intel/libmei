@@ -39,7 +39,8 @@ unsigned int mei_get_api_version();
  */
 enum mei_cl_state {
 	MEI_CL_STATE_ZERO = 0,          /**< reserved */
-	MEI_CL_STATE_INTIALIZED = 1,    /**< client is initialized */
+	MEI_CL_STATE_INTIALIZED = 1,    /**< client is initialized (typo) */
+	MEI_CL_STATE_INITIALIZED = 1,   /**< client is initialized */
 	MEI_CL_STATE_CONNECTED,         /**< client is connected */
 	MEI_CL_STATE_DISCONNECTED,      /**< client is disconnected */
 	MEI_CL_STATE_NOT_PRESENT,       /**< client with GUID is not present in the system */
