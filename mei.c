@@ -258,6 +258,10 @@ int mei_init(struct mei *me, const char *device, const uuid_le *guid,
 	memcpy(&me->guid, guid, sizeof(*guid));
 	me->prot_ver = req_protocol_version;
 	me->device = strdup(device);
+	if (!me->device) {
+		mei_deinit(me);
+		return -ENOMEM;
+	}
 
 	me->state = MEI_CL_STATE_INITIALIZED;
 
