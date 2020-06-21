@@ -5,17 +5,17 @@
  *
  * Intel Management Engine Interface (Intel MEI) Library
  */
+#include <errno.h>
+#include <fcntl.h>
+#include <linux/limits.h>
+#include <linux/mei.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <fcntl.h>
 #include <sys/ioctl.h>
-#include <linux/limits.h>
 #include <unistd.h>
-#include <errno.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <linux/mei.h>
 
 #include "libmei.h"
 
