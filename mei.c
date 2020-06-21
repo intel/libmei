@@ -95,13 +95,13 @@ void mei_deinit(struct mei *me)
 
 static inline int __mei_errno_to_state(struct mei *me)
 {
-	switch(me->last_err) {
-	case 0:         return me->state;
-	case ENOTTY:    return MEI_CL_STATE_NOT_PRESENT;
-	case EBUSY:     return MEI_CL_STATE_DISCONNECTED;
-	case ENODEV:    return MEI_CL_STATE_DISCONNECTED;
+	switch (me->last_err) {
+	case 0: return me->state;
+	case ENOTTY: return MEI_CL_STATE_NOT_PRESENT;
+	case EBUSY: /* fall through */
+	case ENODEV: return MEI_CL_STATE_DISCONNECTED;
 	case EOPNOTSUPP: return me->state;
-	default:        return MEI_CL_STATE_ERROR;
+	default: return MEI_CL_STATE_ERROR;
 	}
 }
 
