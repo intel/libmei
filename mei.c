@@ -185,6 +185,7 @@ static inline int __mei_fwsts(struct mei *me, const char *device,
 {
 #define FWSTS_FILENAME_LEN 33
 #define FWSTS_LEN 9
+#define CONV_BASE 16
 	char path[FWSTS_FILENAME_LEN];
 	int fd;
 	char line[FWSTS_LEN];
@@ -218,7 +219,7 @@ static inline int __mei_fwsts(struct mei *me, const char *device,
 	}
 
 	errno = 0;
-	cnv = strtoul(line, NULL, 16);
+	cnv = strtoul(line, NULL, CONV_BASE);
 	if (errno) {
 		me->last_err = errno;
 		return -me->last_err;
@@ -518,6 +519,8 @@ int mei_notification_get(struct mei *me)
 	return 0;
 }
 
+#define MAX_FW_STATUS_NUM 5
+
 int mei_fwstatus(struct mei *me, uint32_t fwsts_num, uint32_t *fwsts)
 {
 	char *device;
@@ -526,7 +529,7 @@ int mei_fwstatus(struct mei *me, uint32_t fwsts_num, uint32_t *fwsts)
 	if (!me || !fwsts)
 		return -EINVAL;
 
-	if (fwsts_num > 5) {
+	if (fwsts_num > MAX_FW_STATUS_NUM) {
 		mei_err(me, "FW status number should be 0..5\n");
 		return -EINVAL;
 	}
