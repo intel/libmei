@@ -132,7 +132,7 @@ static int __mei_set_nonblock(struct mei *me)
 static inline int __mei_open(struct mei *me, const char *devname)
 {
 	errno = 0;
-	me->fd = open(devname, O_RDWR);
+	me->fd = open(devname, O_RDWR | O_CLOEXEC);
 	me->last_err = errno;
 	return me->fd == -1 ? -me->last_err : me->fd;
 }
