@@ -3,6 +3,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(mei C)
 
+option(USE_SYSLOG "Log to syslog" NO)
+
 # Setup version
 include(version.cmake)
 
@@ -25,6 +27,11 @@ set(CMAKE_SHARED_LINKER_FLAGS
 add_library(${PROJECT_NAME}_objlib OBJECT ${MEI_SOURCES} ${MEI_HEADERS})
 set_target_properties(${PROJECT_NAME}_objlib
                       PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+# Log output target
+if(USE_SYSLOG)
+  target_compile_definitions(${PROJECT_NAME}_objlib PRIVATE -DSYSLOG)
+endif()
 
 # Compilation options
 target_compile_options(
