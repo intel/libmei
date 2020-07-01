@@ -2,8 +2,9 @@
 
 ### Added
 
-1. Add configuration files for gitlint, cmake-format.
-2. Add internal checkpatch.pl from the Linux kernel.
+ - Add configuration files for gitlint, cmake-format.
+ - Add internal checkpatch.pl from the Linux kernel.
+ - Add API to utilize already open file handle.
 
 ### Changed
 
@@ -19,12 +20,14 @@
 
 ### Added
 
-Add mei_fwstatus api to obtain FW status.
+ - Add mei_fwstatus API to obtain FW status.
+ - Add static library build.
+ - Add compiler security hardening flags.
 
 ### Changed
+ - Set default device to mei0.
 
 ### Fixed
-
 
 ## [1.0]
 
