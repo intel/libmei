@@ -1,3 +1,15 @@
+## [1.4]
+
+### Added
+ - Add option to log to syslog (use USE_SYSLOG parameter in CMake).
+
+### Changed
+
+### Fixed
+ - Cleanup code.
+ - Use symbolic constants to improve code readability.
+ - Use O_CLOEXEC when opening device file.
+
 ## [1.3]
 
 ### Added
