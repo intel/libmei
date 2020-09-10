@@ -10,8 +10,8 @@ include(version.cmake)
 
 # Check for new IOCTLs
 include(CheckSymbolExists)
-check_symbol_exists(IOCTL_MEI_NOTIFY_GET linux/mei.h HAVE_GLOBAL_MEI_H)
-if(NOT HAVE_GLOBAL_MEI_H)
+check_symbol_exists(IOCTL_MEI_CONNECT_CLIENT_VTAG linux/mei.h HAVE_VTAG)
+if(NOT HAVE_VTAG)
     include_directories(BEFORE "include")
 endif()
 
