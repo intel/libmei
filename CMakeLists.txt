@@ -48,6 +48,13 @@ target_compile_options(
             -Wformat
             -Wformat-security
             -Winit-self)
+# Security options
+target_compile_options(
+    ${PROJECT_NAME}_objlib
+    PRIVATE $<$<C_COMPILER_ID:GNU>:-fno-strict-overflow>
+    PRIVATE $<$<C_COMPILER_ID:GNU>:-fno-delete-null-pointer-checks>
+    PRIVATE -fwrapv
+)
 
 # Shared Library
 add_library(${PROJECT_NAME}_shared SHARED
