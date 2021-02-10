@@ -1,3 +1,9 @@
+## [1.5.0]
+
+### Added
+ - Add API to set vtag in connection call.
+ - CMake: add secure compile flags.
+
 ## [1.4]
 
 ### Added
