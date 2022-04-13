@@ -1,7 +1,7 @@
 /*
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * Copyright(c) 2013 - 2020 Intel Corporation. All rights reserved.
+ * Copyright(c) 2013 - 2022 Intel Corporation. All rights reserved.
  *
  * Intel Management Engine Interface (Intel MEI) Library
  */
@@ -426,7 +426,8 @@ static int __int_mei_connect(struct mei *me, uint8_t vtag)
 		return -EINVAL;
 
 	if (me->state != MEI_CL_STATE_INITIALIZED &&
-	    me->state != MEI_CL_STATE_DISCONNECTED) {
+	    me->state != MEI_CL_STATE_DISCONNECTED &&
+	    me->state != MEI_CL_STATE_NOT_PRESENT) {
 		mei_err(me, "client state [%d]\n", me->state);
 		return -EINVAL;
 	}
