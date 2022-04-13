@@ -1,3 +1,8 @@
+## [1.5.1]
+
+### Fixed
+ - allow to reconnect if client previously not found
+
 ## [1.5.0]
 
 ### Added
