@@ -487,7 +487,7 @@ ssize_t mei_recv_msg(struct mei *me, unsigned char *buffer, size_t len)
 	if (!me || !buffer)
 		return -EINVAL;
 
-	mei_msg(me, "call read length = %zd\n", len);
+	mei_msg(me, "call read length = %zu\n", len);
 
 	rc = __mei_read(me, buffer, len);
 	if (rc < 0) {
@@ -508,7 +508,7 @@ ssize_t mei_send_msg(struct mei *me, const unsigned char *buffer, size_t len)
 	if (!me || !buffer)
 		return -EINVAL;
 
-	mei_msg(me, "call write length = %zd\n", len);
+	mei_msg(me, "call write length = %zu\n", len);
 	mei_dump_hex_buffer(me, buffer, len);
 
 	rc  = __mei_write(me, buffer, len);
