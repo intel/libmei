@@ -1,3 +1,10 @@
+## [1.5.2]
+
+### Fixed
+ - terminate readlink output
+ - expand error handling of readlink and snprintf
+ - print size_t with unsigned format
+
 ## [1.5.1]
 
 ### Fixed
