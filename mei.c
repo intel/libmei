@@ -1,7 +1,7 @@
 /*
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * Copyright(c) 2013 - 2022 Intel Corporation. All rights reserved.
+ * Copyright(c) 2013 - 2023 Intel Corporation. All rights reserved.
  *
  * Intel Management Engine Interface (Intel MEI) Library
  */
@@ -310,8 +310,12 @@ static int __mei_fd_to_devname(struct mei *me, int fd)
 	int ret;
 
 	ret = snprintf(proc, PATH_MAX, "/proc/self/fd/%d", fd);
+	if (ret < 0) {
+		mei_err(me, "Proc path is bad %d\n", ret);
+		return ret;
+	}
 	if (ret >= PATH_MAX) {
-		mei_err(me, "Proc path is too long\n");
+		mei_err(me, "Proc path is too long %d\n", ret);
 		return -ENAMETOOLONG;
 	}
 
