@@ -325,6 +325,15 @@ static int __mei_fd_to_devname(struct mei *me, int fd)
 		mei_err(me, "Cannot obtain device name %d\n", errno);
 		return -errno;
 	}
+	if (ret == PATH_MAX) {
+		mei_err(me, "Cannot obtain device name, too long\n");
+		return -ENAMETOOLONG;
+	}
+	if (ret < 0 || ret > PATH_MAX) {
+		mei_err(me, "Cannot obtain device name %d\n", ret);
+		return -EFAULT;
+	}
+	name[ret] = '\0';
 
 	me->device = strdup(name);
 	if (!me->device)
