@@ -1,3 +1,8 @@
+## [1.5.3]
+
+### Added
+ - add log level api
+
 ## [1.5.2]
 
 ### Fixed
