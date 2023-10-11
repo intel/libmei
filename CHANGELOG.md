@@ -1,3 +1,12 @@
+## [1.5.4]
+
+### Fixed
+ - Allow connect in error state
+
+### Added
+ - README: explain build steps
+ - set security policy for the project
+
 ## [1.5.3]
 
 ### Added
