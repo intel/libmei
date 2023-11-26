@@ -27,7 +27,7 @@ extern "C" {
 
 /*! Library API version
  */
-#define LIBMEI_API_VERSION MEI_ENCODE_VERSION(1, 4)
+#define LIBMEI_API_VERSION MEI_ENCODE_VERSION(1, 5)
 
 /*! Get current supported library API version
  *
