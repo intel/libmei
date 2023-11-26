@@ -1,3 +1,8 @@
+## [1.5.5]
+
+### Added
+ - add log callback
+
 ## [1.5.4]
 
 ### Fixed
