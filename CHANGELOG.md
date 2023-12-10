@@ -1,3 +1,8 @@
+## [1.5.6]
+
+### Added
+ - add api to get trc value
+
 ## [1.5.5]
 
 ### Added
