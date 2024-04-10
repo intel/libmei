@@ -744,7 +744,7 @@ uint32_t mei_get_log_level(const struct mei *me)
 	return me->log_level;
 }
 
-uint32_t mei_set_log_callback(struct mei *me, mei_log_callback log_callback)
+int mei_set_log_callback(struct mei *me, mei_log_callback log_callback)
 {
 	if (!me)
 		return -EINVAL;
