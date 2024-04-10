@@ -1,3 +1,18 @@
+## [1.6.0]
+
+Note: backward-incompatible API breakage:
+      mei_set_log_callback now returns int instead of uint32_t.
+
+### Fixed
+ - convert size to required type
+ - rewrite dump_hex_buffer
+
+### Added
+ - CMake: enable several extended compilation warnings
+
+### Changed
+ - change mei_set_log_callback return type
+
 ## [1.5.6]
 
 ### Added
