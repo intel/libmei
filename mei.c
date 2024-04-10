@@ -1,7 +1,7 @@
 /*
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * Copyright(c) 2013 - 2023 Intel Corporation. All rights reserved.
+ * Copyright(c) 2013 - 2024 Intel Corporation. All rights reserved.
  *
  * Intel Management Engine Interface (Intel MEI) Library
  */
@@ -580,7 +580,7 @@ ssize_t mei_recv_msg(struct mei *me, unsigned char *buffer, size_t len)
 		goto out;
 	}
 	mei_msg(me, "read succeeded with result %zd\n", rc);
-	mei_dump_hex_buffer(me, buffer, rc);
+	mei_dump_hex_buffer(me, buffer, (size_t)rc);
 out:
 	return rc;
 }
