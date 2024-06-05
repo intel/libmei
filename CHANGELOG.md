@@ -1,3 +1,8 @@
+## [1.6.1]
+
+### Fixed
+ - fix variable type for readlink output
+
 ## [1.6.0]
 
 Note: backward-incompatible API breakage:
