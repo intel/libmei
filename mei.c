@@ -67,6 +67,7 @@ static inline void __dump_buffer(const char *buf)
 }
 #endif /* ANDROID */
 
+#ifdef DEBUG
 static void dump_hex_buffer(const unsigned char *buf, size_t len)
 {
 #define LINE_LEN 16
@@ -91,6 +92,15 @@ static void mei_dump_hex_buffer(struct mei *me,
 
 	dump_hex_buffer(buf, len);
 }
+#else /* DEBUG */
+static void mei_dump_hex_buffer(struct mei *me,
+				const unsigned char *buf, size_t len)
+{
+	(void)(me);
+	(void)(buf);
+	(void)(len);
+}
+#endif /* DEBUG */
 
 void mei_deinit(struct mei *me)
 {
