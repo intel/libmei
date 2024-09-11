@@ -1,3 +1,8 @@
+## [1.6.2]
+
+### Changed
+ - dump traffic only in debug builds
+
 ## [1.6.1]
 
 ### Fixed
