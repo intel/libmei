@@ -238,6 +238,7 @@ static inline int __mei_fwsts(struct mei *me, const char *device,
 	char line[FWSTS_LEN];
 	unsigned long cnv;
 	ssize_t len;
+	off_t count;
 
 	if (snprintf(path, FWSTS_FILENAME_LEN,
 		     "/sys/class/mei/%s/fw_status", device) < 0)
@@ -251,8 +252,10 @@ static inline int __mei_fwsts(struct mei *me, const char *device,
 		return -me->last_err;
 	}
 
+	/* safe to cast to off_t: fwsts_num is a small number */
+	count = (off_t)fwsts_num * FWSTS_LEN;
 	errno = 0;
-	len = pread(fd, line, FWSTS_LEN, fwsts_num * FWSTS_LEN);
+	len = pread(fd, line, FWSTS_LEN, count);
 	if (len == -1) {
 		me->last_err = errno;
 		close(fd);
