@@ -27,10 +27,12 @@
 #include <cutils/log.h>
 #define mei_msg(_me, fmt, ARGS...) ALOGV_IF((_me->log_level >= MEI_LOG_LEVEL_VERBOSE), fmt, ##ARGS)
 #define mei_err(_me, fmt, ARGS...) ALOGE(fmt, ##ARGS)
+#ifdef DEBUG
 static inline void __dump_buffer(const char *buf)
 {
 	ALOGV("%s\n", buf);
 }
+#endif /* DEBUG */
 
 #else /* ! ANDROID */
 #ifdef SYSLOG
@@ -61,10 +63,12 @@ static inline void __dump_buffer(const char *buf)
 	}                                                                     \
 } while (0)
 
+#ifdef DEBUG
 static inline void __dump_buffer(const char *buf)
 {
 	__mei_msg("%s\n", buf);
 }
+#endif /* DEBUG */
 #endif /* ANDROID */
 
 #ifdef DEBUG
