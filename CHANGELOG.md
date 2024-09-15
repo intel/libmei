@@ -1,3 +1,9 @@
+## [1.6.3]
+
+### Fixed
+ -  mark __dump_buffer as debug-only
+ -  cast fwsts_num to off_t to suppress warning
+
 ## [1.6.2]
 
 ### Changed
