@@ -1,3 +1,8 @@
+## [1.6.4]
+
+### Added
+ - add device kind api
+
 ## [1.6.3]
 
 ### Fixed
