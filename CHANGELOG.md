@@ -1,3 +1,11 @@
+## [1.7.0]
+
+Note: ABI only binary incompatibility
+      struct mei size increased.
+
+### Added
+ - add initialization api with new logger callback
+
 ## [1.6.4]
 
 ### Added
