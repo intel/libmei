@@ -1,3 +1,11 @@
+## [1.8.0]
+
+### Changed
+ - account for driver disabled state
+
+### Fixed
+ -  make kind null-terminated
+
 ## [1.7.0]
 
 Note: ABI only binary incompatibility
