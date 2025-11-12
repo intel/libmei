@@ -394,6 +394,7 @@ static inline int __mei_getkind(struct mei *me, const char *device, char *kind, 
 	}
 	*kind_size = (size_t)len;
 	memcpy(kind, buf, (size_t)len);
+	kind[len - 1] = '\0';
 
 	return 0;
 #undef KIND_FILENAME_LEN
