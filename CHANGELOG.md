@@ -1,3 +1,8 @@
+## [1.8.1]
+
+### Changed
+ - build for android using android NDK
+
 ## [1.8.0]
 
 ### Changed
