@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (C) 2016-2024 Intel Corporation
+# Copyright (C) 2016-2026 Intel Corporation
 cmake_minimum_required(VERSION 3.10)
 project(mei C)
 
@@ -42,6 +42,7 @@ set(COMPILE_OPTIONS
             --param
             ssp-buffer-size=4
             -ftrapv
+            -U_FORTIFY_SOURCE
             -D_FORTIFY_SOURCE=2
             -O2
             -Wformat
