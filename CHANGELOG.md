@@ -1,3 +1,11 @@
+## [1.8.2]
+
+### Fixed
+ - CMake: Linux: overwrite FORTIFY_SOURCE from distribution
+
+### Changed
+ - update android logging
+
 ## [1.8.1]
 
 ### Changed
