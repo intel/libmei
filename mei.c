@@ -1,7 +1,7 @@
 /*
  * SPDX-License-Identifier: BSD-3-Clause
  *
- * Copyright(c) 2013 - 2025 Intel Corporation. All rights reserved.
+ * Copyright(c) 2013 - 2026 Intel Corporation. All rights reserved.
  *
  * Intel Management Engine Interface (Intel MEI) Library
  */
@@ -23,27 +23,17 @@
 /*****************************************************************************
  * Intel Management Engine Interface
  *****************************************************************************/
-#ifdef ANDROID
-#define LOG_TAG "libmei"
-#include <android/log_macros.h>
-#define mei_msg(_me, fmt, ARGS...) \
-((_me->log_level >= MEI_LOG_LEVEL_VERBOSE) \
-? (void)ALOGV(fmt, ##ARGS) \
-: (void)0)
-
-#define mei_err(_me, fmt, ARGS...) ALOGE(fmt, ##ARGS)
-#ifdef DEBUG
-static inline void __dump_buffer(const char *buf)
-{
-	ALOGV("%s\n", buf);
-}
-#endif /* DEBUG */
-
-#else /* ! ANDROID */
 #ifdef SYSLOG
-	#include <syslog.h>
-	#define __mei_msg(fmt, ...) syslog(LOG_DEBUG, fmt, ##__VA_ARGS__)
-	#define __mei_err(fmt, ...) syslog(LOG_ERR, fmt, ##__VA_ARGS__)
+	#ifdef ANDROID
+		#define LOG_TAG "libmei"
+		#include <android/log_macros.h>
+		#define __mei_msg(fmt, ...) ALOGV(fmt, ##__VA_ARGS__)
+		#define __mei_err(fmt, ...) ALOGE(fmt, ##__VA_ARGS__)
+	#else /* ANDROID */
+		#include <syslog.h>
+		#define __mei_msg(fmt, ...) syslog(LOG_DEBUG, fmt, ##__VA_ARGS__)
+		#define __mei_err(fmt, ...) syslog(LOG_ERR, fmt, ##__VA_ARGS__)
+	#endif /* ANDROID */
 #else
 	#include <stdlib.h>
 	#define __mei_msg(fmt, ...) fprintf(stdout, fmt, ##__VA_ARGS__)
@@ -80,10 +70,7 @@ static inline void __dump_buffer(const char *buf)
 {
 	__mei_msg("%s\n", buf);
 }
-#endif /* DEBUG */
-#endif /* ANDROID */
 
-#ifdef DEBUG
 static void dump_hex_buffer(const unsigned char *buf, size_t len)
 {
 #define LINE_LEN 16
