@@ -1,3 +1,8 @@
+## [1.8.3]
+
+### Fixed
+ - return error on empty kind string
+
 ## [1.8.2]
 
 ### Fixed
